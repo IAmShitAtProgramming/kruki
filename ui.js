@@ -110,7 +110,8 @@ function showInfoModal(title, message, callback) {
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => console.error(err));
+        const board = document.getElementById('game-board');
+        if (board) board.requestFullscreen().catch(err => console.error(err));
     } else {
         document.exitFullscreen();
     }

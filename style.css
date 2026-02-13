@@ -71,6 +71,11 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
     gap: 30px;
 }
 
+#game-board:fullscreen {
+    background-color: var(--bg-color);
+    overflow-y: auto;
+}
+
 #table-center {
     width: 160px;
     height: 220px;

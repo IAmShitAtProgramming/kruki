@@ -87,8 +87,17 @@ function startGame() {
     }
 }
 
-function playCard(playerIdx) {
+function playCard(playerIdx, isRemote = false) {
     if (document.getElementById('game-board').classList.contains('layout-mode')) return;
+
+    // ONLINE: Sprawdzenie własności kart (tylko jeśli gra online i ruch lokalny)
+    if (gameState.online.active && !isRemote) {
+        const myIdx = gameState.online.myPlayerIdx;
+        if (playerIdx !== myIdx) {
+            showInfoModal("Nie Twoje karty", "Możesz grać tylko swoją talią.");
+            return;
+        }
+    }
 
     // ONLINE: Jeśli klient, wyślij żądanie ruchu do hosta
     if (gameState.online.active && !gameState.online.isHost) {
@@ -410,6 +419,7 @@ function setupOnline(role) {
     document.getElementById('online-controls').style.display = 'none';
     gameState.online.active = true;
     gameState.online.isHost = (role === 'host');
+    gameState.online.myPlayerIdx = (role === 'host') ? 0 : 1;
 
     const statusDiv = document.getElementById('online-status');
     statusDiv.innerText = "Inicjalizacja połączenia...";
@@ -507,7 +517,9 @@ function sendAction(actionName, args) {
 function handleNetworkData(data) {
     if (data.type === 'STATE_UPDATE') {
         // Klient otrzymuje stan od Hosta
+        const localOnline = gameState.online; // Zachowaj lokalny stan online (isHost, myPlayerIdx, peer)
         Object.assign(gameState, data); // Nadpisz stan lokalny
+        gameState.online = localOnline; // Przywróć lokalny stan online
         
         // Wymuś przejście do widoku gry jeśli jeszcze w setupie
         if (document.getElementById('game-setup').style.display !== 'none') {
@@ -543,7 +555,7 @@ function handleNetworkData(data) {
         if (gameState.online.isHost) {
             const fn = window[data.action];
             if (typeof fn === 'function') {
-                fn.apply(null, data.args);
+                fn.apply(null, [...data.args, true]); // Dodaj flagę isRemote=true
             }
         }
     }
