@@ -223,18 +223,21 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
     height: 80vh; /* Stała wysokość dla obszaru stołu */
     width: 100%;
     overflow: hidden;
+    border: 2px dashed var(--accent-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
 }
 
 .custom-layout .player-deck,
 .custom-layout #table-center,
 .custom-layout #btn-end-round-container,
-.custom-layout #btn-reset-container {
+.custom-layout #btn-reset-container,
+.custom-layout #action-area {
     position: absolute;
 }
 
 .layout-mode .player-deck {
     transition: none !important;
-    transform: none !important;
 }
 
 .custom-layout #btn-end-round-container,
@@ -251,3 +254,9 @@ table { width: 100%; border-collapse: collapse; margin-top: 20px; }
 th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
 th { color: var(--highlight); text-transform: uppercase; font-size: 0.8rem; }
 .separator { border: 0; border-top: 1px solid #333; margin: 40px 0; }
+
+/* Edycja układu */
+.selected-element {
+    outline: 2px dashed #cfb53b; /* Złoty kolor */
+    outline-offset: 5px;
+}

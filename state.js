@@ -7,7 +7,13 @@ let gameState = {
     thumpingMode: false, // Dudniąca Piątka
     mode: 'learning', // 'learning' lub 'competitive'
     slapActive: false, // Czy na stole jest sytuacja "Ręce na stos"
-    savedLayout: null // Zapisany układ stołu { id: {left, top} }
+    savedLayout: null, // Zapisany układ stołu { id: {left, top} }
+    online: {
+        active: false,
+        isHost: false,
+        peer: null,
+        conn: null
+    }
 };
 
 const VALUES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];

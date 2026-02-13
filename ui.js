@@ -18,12 +18,15 @@ function renderBoard() {
         container.appendChild(deck);
     });
 
+    const infoDiv = document.getElementById('current-info');
     if (gameState.mode === 'learning') {
+        if (!document.getElementById('game-board').classList.contains('layout-mode')) {
+            infoDiv.style.visibility = 'visible';
+        }
         document.getElementById('active-player-name').innerText = gameState.currentPlayer === -1 ? "Dowolny" : gameState.players[gameState.currentPlayer].name;
-        document.getElementById('direction-info').innerText = gameState.direction === 1 ? "Kierunek: Domyślny" : "Kierunek: Odwrócony";
+        document.getElementById('direction-info').innerText = gameState.direction === 1 ? "Kierunek: ↺ (W lewo)" : "Kierunek: ↻ (W prawo)";
     } else {
-        document.getElementById('active-player-name').innerText = "???";
-        document.getElementById('direction-info').innerText = "Kierunek: ???";
+        infoDiv.style.visibility = 'hidden';
     }
 
     if (gameState.savedLayout) {

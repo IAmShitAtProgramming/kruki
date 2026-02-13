@@ -1,6 +1,11 @@
 // --- GAME LOGIC ---
 
 function startGame() {
+    // Jeśli jesteśmy klientem online, nie generujemy gry, tylko czekamy na stan od Hosta
+    if (gameState.online.active && !gameState.online.isHost) {
+        return; 
+    }
+
     const pCount = parseInt(document.getElementById('players-count').value);
     const dCount = parseInt(document.getElementById('decks-count').value);
     const modeSelect = document.getElementById('game-mode');
@@ -75,10 +80,21 @@ function startGame() {
     }
 
     updateActionText(gameState.mode === 'learning' ? "Rozpoczyna dowolny gracz" : "Gra rozpoczęta");
+
+    // Jeśli Host, wyślij stan początkowy
+    if (gameState.online.active && gameState.online.isHost) {
+        broadcastGameState();
+    }
 }
 
 function playCard(playerIdx) {
     if (document.getElementById('game-board').classList.contains('layout-mode')) return;
+
+    // ONLINE: Jeśli klient, wyślij żądanie ruchu do hosta
+    if (gameState.online.active && !gameState.online.isHost) {
+        sendAction('playCard', [playerIdx]);
+        return;
+    }
 
     const player = gameState.players[playerIdx];
     if (player.cards.length === 0) {
@@ -226,6 +242,11 @@ function playCard(playerIdx) {
     gameState.currentPlayer = (gameState.currentPlayer + nextPlayerOffset + pCount) % pCount;
 
     renderBoard();
+
+    // ONLINE: Host wysyła aktualizację stanu
+    if (gameState.online.active && gameState.online.isHost) {
+        broadcastGameState();
+    }
 }
 
 function getCardValue(val) {
@@ -256,6 +277,13 @@ function setupWarUI() {
     const confirmBtn = document.createElement('button');
     confirmBtn.innerText = "Walcz!";
     confirmBtn.onclick = () => {
+        // ONLINE: Klient wysyła żądanie wojny
+        if (gameState.online.active && !gameState.online.isHost) {
+            const checkboxes = document.querySelectorAll('.war-checkbox:checked');
+            const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            sendAction('resolveWar', [selectedIds]);
+            return;
+        }
         const checkboxes = document.querySelectorAll('.war-checkbox:checked');
         const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
         if (selectedIds.length < 2) {
@@ -276,6 +304,12 @@ function setupWarUI() {
 }
 
 function resolveWar(playerIds) {
+    // ONLINE: Jeśli klient, wyślij żądanie (zabezpieczenie, choć UI powinno to obsłużyć)
+    if (gameState.online.active && !gameState.online.isHost) {
+        sendAction('resolveWar', [playerIds]);
+        return;
+    }
+
     let warLog = "Wynik Wojny:\n";
     let cardsPlayed = [];
     
@@ -315,9 +349,20 @@ function resolveWar(playerIds) {
             resolveWar(loserIds);
         });
     }
+
+    // ONLINE: Host wysyła aktualizację
+    if (gameState.online.active && gameState.online.isHost) {
+        broadcastGameState();
+    }
 }
 
 function takePile(playerIdx) {
+    // ONLINE: Klient wysyła żądanie
+    if (gameState.online.active && !gameState.online.isHost) {
+        sendAction('takePile', [playerIdx]);
+        return;
+    }
+
     const player = gameState.players[playerIdx];
     // Dodaj karty ze stosu na spód talii gracza
     while (gameState.centerPile.length > 0) {
@@ -340,12 +385,168 @@ function takePile(playerIdx) {
     renderBoard();
 
     showInfoModal("Koniec rundy", `${player.name} zbiera karty i rozpoczyna nową rundę!`);
+
+    // ONLINE: Host wysyła aktualizację
+    if (gameState.online.active && gameState.online.isHost) {
+        broadcastGameState();
+    }
 }
 
 function resetGame() {
+    // Reset UI
     document.getElementById('game-setup').style.display = 'block';
     document.getElementById('game-board').style.display = 'none';
     document.getElementById('last-card-container').innerHTML = '<span style="color: #444;">STOS</span>';
+    
+    // Jeśli online, zamykamy połączenia (opcjonalnie można zostawić)
+    if (gameState.online.active) {
+        // location.reload(); // Najprostszy reset przy online
+    }
+}
+
+// --- LOGIKA SIECIOWA (PEERJS) ---
+
+function setupOnline(role) {
+    document.getElementById('online-controls').style.display = 'none';
+    gameState.online.active = true;
+    gameState.online.isHost = (role === 'host');
+
+    const statusDiv = document.getElementById('online-status');
+    statusDiv.innerText = "Inicjalizacja połączenia...";
+
+    // Inicjalizacja PeerJS
+    gameState.online.peer = new Peer();
+
+    gameState.online.peer.on('open', (id) => {
+        if (role === 'host') {
+            document.getElementById('host-ui').style.display = 'block';
+            document.getElementById('host-code').value = id;
+            statusDiv.innerText = "Jesteś Hostem. Czekam na gracza...";
+        } else {
+            document.getElementById('join-ui').style.display = 'block';
+            statusDiv.innerText = "Wpisz kod hosta.";
+        }
+    });
+
+    gameState.online.peer.on('connection', (conn) => {
+        if (role === 'host') {
+            gameState.online.conn = conn;
+            setupConnectionHandlers(conn);
+            document.getElementById('host-status').innerText = "Gracz dołączył! Możesz rozpocząć grę.";
+            document.getElementById('host-status').style.color = "#00ff00";
+        }
+    });
+
+    gameState.online.peer.on('error', (err) => {
+        console.error(err);
+        statusDiv.innerText = "Błąd połączenia: " + err.type;
+    });
+}
+
+function connectToHost() {
+    const hostId = document.getElementById('join-code-input').value;
+    if (!hostId) return;
+
+    const conn = gameState.online.peer.connect(hostId);
+    gameState.online.conn = conn;
+    setupConnectionHandlers(conn);
+    document.getElementById('online-status').innerText = "Łączenie...";
+}
+
+function setupConnectionHandlers(conn) {
+    conn.on('open', () => {
+        document.getElementById('online-status').innerText = "Połączono!";
+        document.getElementById('online-status').style.color = "#00ff00";
+        
+        // Jeśli to klient, ukrywamy przyciski startu (czeka na hosta)
+        if (!gameState.online.isHost) {
+             document.querySelector('#game-setup button[onclick="startGame()"]').style.display = 'none';
+             document.querySelector('#game-setup button[onclick="enterLayoutMode()"]').style.display = 'none';
+             document.getElementById('online-status').innerText += " Czekaj na rozpoczęcie gry przez Hosta.";
+        }
+    });
+
+    conn.on('data', (data) => {
+        handleNetworkData(data);
+    });
+
+    conn.on('close', () => {
+        alert("Połączenie przerwane!");
+        location.reload();
+    });
+}
+
+function broadcastGameState() {
+    if (gameState.online.conn && gameState.online.conn.open) {
+        // Wysyłamy kluczowe dane stanu
+        const stateToSend = {
+            type: 'STATE_UPDATE',
+            players: gameState.players,
+            centerPile: gameState.centerPile,
+            currentPlayer: gameState.currentPlayer,
+            direction: gameState.direction,
+            silentMode: gameState.silentMode,
+            thumpingMode: gameState.thumpingMode,
+            mode: gameState.mode,
+            slapActive: gameState.slapActive
+        };
+        gameState.online.conn.send(stateToSend);
+    }
+}
+
+function sendAction(actionName, args) {
+    if (gameState.online.conn && gameState.online.conn.open) {
+        gameState.online.conn.send({
+            type: 'ACTION',
+            action: actionName,
+            args: args
+        });
+    }
+}
+
+function handleNetworkData(data) {
+    if (data.type === 'STATE_UPDATE') {
+        // Klient otrzymuje stan od Hosta
+        Object.assign(gameState, data); // Nadpisz stan lokalny
+        
+        // Wymuś przejście do widoku gry jeśli jeszcze w setupie
+        if (document.getElementById('game-setup').style.display !== 'none') {
+            document.getElementById('game-setup').style.display = 'none';
+            document.getElementById('game-board').style.display = 'flex';
+            document.getElementById('penalty-area').style.display = 'none';
+            document.getElementById('slap-alert').style.display = 'none';
+            
+            // Dodaj przycisk fullscreen jeśli nie ma
+            if (!document.getElementById('btn-fullscreen')) {
+                const fsBtn = document.createElement('button');
+                fsBtn.id = 'btn-fullscreen';
+                fsBtn.innerText = "⛶";
+                fsBtn.onclick = toggleFullscreen;
+                // Style są w CSS lub inline w startGame, tutaj uproszczone
+                fsBtn.style.position = "absolute"; fsBtn.style.top = "20px"; fsBtn.style.right = "20px"; fsBtn.style.zIndex = "2000";
+                document.getElementById('game-board').appendChild(fsBtn);
+            }
+        }
+        
+        renderBoard();
+        
+        // Aktualizacja tekstu akcji dla klienta
+        const pileCount = gameState.centerPile.length;
+        const moduloVal = pileCount % 13 === 0 ? 13 : pileCount % 13;
+        if (gameState.mode === 'learning' && pileCount > 0) {
+             // Prosta aktualizacja tekstu, pełna logika jest u Hosta
+             updateActionText(`Karta: ${moduloVal}`);
+        }
+
+    } else if (data.type === 'ACTION') {
+        // Host otrzymuje akcję od Klienta
+        if (gameState.online.isHost) {
+            const fn = window[data.action];
+            if (typeof fn === 'function') {
+                fn.apply(null, data.args);
+            }
+        }
+    }
 }
 
 // Eksport funkcji do zakresu globalnego
@@ -355,3 +556,5 @@ window.resetGame = resetGame;
 window.resolveWar = resolveWar;
 window.takePile = takePile;
 window.setupWarUI = setupWarUI;
+window.setupOnline = setupOnline;
+window.connectToHost = connectToHost;
