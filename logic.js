@@ -1,3 +1,5 @@
+// --- GAME LOGIC ---
+
 function startGame() {
     const pCount = parseInt(document.getElementById('players-count').value);
     const dCount = parseInt(document.getElementById('decks-count').value);
@@ -346,7 +348,7 @@ function resetGame() {
     document.getElementById('last-card-container').innerHTML = '<span style="color: #444;">STOS</span>';
 }
 
-// Eksport funkcji do zakresu globalnego (window)
+// Eksport funkcji do zakresu globalnego
 window.startGame = startGame;
 window.playCard = playCard;
 window.resetGame = resetGame;

@@ -1,4 +1,4 @@
-// --- LOGIKA USTAWIANIA STOŁU ---
+// --- LAYOUT & DRAG-DROP FUNCTIONS ---
 
 function enterLayoutMode() {
     const pCount = parseInt(document.getElementById('players-count').value) || 3;

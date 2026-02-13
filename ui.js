@@ -1,3 +1,4 @@
+// --- UI FUNCTIONS ---
 function renderBoard() {
     const container = document.getElementById('players-container');
     container.innerHTML = '';
