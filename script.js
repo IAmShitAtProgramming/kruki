@@ -21,10 +21,20 @@ window.onload = function() {
 function updateNameInputs() {
     const pCount = parseInt(document.getElementById('players-count').value) || 3;
     const container = document.getElementById('player-names-container');
-    container.innerHTML = '';
-    for (let i = 0; i < pCount; i++) {
-        container.innerHTML += `<input type="text" class="name-input" id="pname-${i}" value="Gracz ${i + 1}" placeholder="Imię gracza ${i + 1}">`;
+    
+    // Zachowaj obecne imiona, jeśli istnieją
+    const currentNames = [];
+    const existingInputs = container.getElementsByClassName('name-input');
+    for (let input of existingInputs) {
+        currentNames.push(input.value);
     }
+
+    let html = '';
+    for (let i = 0; i < pCount; i++) {
+        const val = currentNames[i] || `Gracz ${i + 1}`;
+        html += `<input type="text" class="name-input" id="pname-${i}" value="${val}" placeholder="Imię gracza ${i + 1}">`;
+    }
+    container.innerHTML = html;
 }
 
 function startGame() {
@@ -256,6 +266,11 @@ function playCard(playerIdx) {
             gameState.direction *= -1;
             nextPlayerOffset = gameState.direction; // Aktualizacja offsetu po zmianie
             break;
+    }
+
+    // Reset Cichej Czwórki po zakończeniu cyklu (13 kart) - zgodnie z zasadami
+    if (moduloVal === 13) {
+        gameState.silentMode = false;
     }
 
     // Następny gracz
