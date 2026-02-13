@@ -345,3 +345,11 @@ function resetGame() {
     document.getElementById('game-board').style.display = 'none';
     document.getElementById('last-card-container').innerHTML = '<span style="color: #444;">STOS</span>';
 }
+
+// Eksport funkcji do zakresu globalnego (window)
+window.startGame = startGame;
+window.playCard = playCard;
+window.resetGame = resetGame;
+window.resolveWar = resolveWar;
+window.takePile = takePile;
+window.setupWarUI = setupWarUI;

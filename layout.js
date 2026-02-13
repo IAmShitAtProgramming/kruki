@@ -187,3 +187,8 @@ function applySavedLayout() {
         }
     }
 }
+
+// Eksport funkcji do zakresu globalnego
+window.enterLayoutMode = enterLayoutMode;
+window.saveLayout = saveLayout;
+window.cancelLayout = cancelLayout;

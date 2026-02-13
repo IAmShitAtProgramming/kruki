@@ -1,6 +1,22 @@
 // Inicjalizacja pól nazw przy starcie
 window.onload = function() {
     updateNameInputs();
+    
+    // Obsługa zmiany liczby graczy (naprawa braku aktualizacji pól)
+    const pCountInput = document.getElementById('players-count');
+    if (pCountInput) {
+        pCountInput.addEventListener('input', updateNameInputs);
+        pCountInput.addEventListener('change', updateNameInputs);
+    }
+
+    // Awaryjne przypisanie przycisków, jeśli HTML nie ma onclick lub funkcje nie są widoczne
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => {
+        const txt = btn.innerText.toLowerCase();
+        if (txt.includes('rozpocznij') && typeof window.startGame === 'function') btn.onclick = window.startGame;
+        if (txt.includes('ustaw stół') && typeof window.enterLayoutMode === 'function') btn.onclick = window.enterLayoutMode;
+        if (txt.includes('resetuj') && typeof window.resetGame === 'function') btn.onclick = window.resetGame;
+    });
 };
 
 function updateNameInputs() {

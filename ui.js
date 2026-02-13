@@ -111,3 +111,9 @@ function toggleFullscreen() {
         document.exitFullscreen();
     }
 }
+
+// Eksport funkcji do zakresu globalnego
+window.renderBoard = renderBoard;
+window.toggleFullscreen = toggleFullscreen;
+window.showPenaltyControls = showPenaltyControls;
+window.showErrorModal = showErrorModal;
