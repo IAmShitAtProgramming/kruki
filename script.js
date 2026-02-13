@@ -1,6 +1,33 @@
 // Inicjalizacja pól nazw przy starcie
 window.onload = function() {
     updateNameInputs();
+    
+    // Obsługa zmiany liczby graczy
+    const pCountInput = document.getElementById('players-count');
+    if (pCountInput) {
+        pCountInput.addEventListener('input', updateNameInputs);
+        pCountInput.addEventListener('change', updateNameInputs);
+    }
+
+    // Awaryjne przypisanie przycisków (gdyby onclick w HTML nie zadziałał)
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => {
+        const txt = btn.innerText.toLowerCase().trim();
+        
+        if (txt.includes('rozpocznij')) btn.onclick = window.startGame;
+        if (txt.includes('ustaw stół')) btn.onclick = window.enterLayoutMode;
+        if (txt.includes('resetuj')) btn.onclick = window.resetGame;
+        
+        // Obsługa przycisków Online
+        if (txt.includes('załóż grę')) btn.onclick = () => window.setupOnline('host');
+        if (txt.includes('dołącz (join)')) btn.onclick = () => window.setupOnline('join');
+        if (txt === 'połącz') btn.onclick = window.connectToHost;
+        
+        // Inne przyciski
+        if (txt.includes('zakończ rundę')) btn.onclick = window.showPenaltyControls;
+        if (txt.includes('zapisz układ')) btn.onclick = window.saveLayout;
+        if (txt === 'anuluj' && btn.parentElement.id === 'layout-controls') btn.onclick = window.cancelLayout;
+    });
 };
 
 function updateNameInputs() {
