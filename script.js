@@ -13,9 +13,9 @@ window.onload = function() {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(btn => {
         const txt = btn.innerText.toLowerCase();
-        if (txt.includes('rozpocznij') && typeof window.startGame === 'function') btn.onclick = window.startGame;
-        if (txt.includes('ustaw stół') && typeof window.enterLayoutMode === 'function') btn.onclick = window.enterLayoutMode;
-        if (txt.includes('resetuj') && typeof window.resetGame === 'function') btn.onclick = window.resetGame;
+        if (txt.includes('rozpocznij')) btn.onclick = window.startGame;
+        if (txt.includes('ustaw stół')) btn.onclick = window.enterLayoutMode;
+        if (txt.includes('resetuj')) btn.onclick = window.resetGame;
     });
 };
 

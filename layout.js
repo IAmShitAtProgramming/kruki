@@ -192,3 +192,6 @@ function applySavedLayout() {
 window.enterLayoutMode = enterLayoutMode;
 window.saveLayout = saveLayout;
 window.cancelLayout = cancelLayout;
+window.applySavedLayout = applySavedLayout;
+window.initializeLayoutPositions = initializeLayoutPositions;
+window.enableDraggables = enableDraggables;

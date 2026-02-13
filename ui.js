@@ -115,5 +115,7 @@ function toggleFullscreen() {
 // Eksport funkcji do zakresu globalnego
 window.renderBoard = renderBoard;
 window.toggleFullscreen = toggleFullscreen;
+window.updateActionText = updateActionText;
 window.showPenaltyControls = showPenaltyControls;
 window.showErrorModal = showErrorModal;
+window.showInfoModal = showInfoModal;
