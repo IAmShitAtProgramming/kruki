@@ -90,6 +90,21 @@ function startGame() {
     document.getElementById('game-board').style.display = 'flex';
     document.getElementById('penalty-area').style.display = 'none';
     document.getElementById('slap-alert').style.display = 'none';
+
+    // Dodanie przycisku pełnego ekranu
+    if (!document.getElementById('btn-fullscreen')) {
+        const fsBtn = document.createElement('button');
+        fsBtn.id = 'btn-fullscreen';
+        fsBtn.innerText = "⛶";
+        fsBtn.title = "Pełny ekran";
+        fsBtn.style.position = "absolute";
+        fsBtn.style.top = "20px";
+        fsBtn.style.right = "20px";
+        fsBtn.style.zIndex = "2000";
+        fsBtn.onclick = toggleFullscreen;
+        document.getElementById('game-board').appendChild(fsBtn);
+    }
+
     renderBoard();
     
     if (gameState.savedLayout) {
@@ -512,7 +527,10 @@ function enterLayoutMode() {
     enableDraggables();
 
     // Zablokuj przyciski w kontenerach na stole
-    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => btn.disabled = true);
+    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => {
+        btn.disabled = true;
+        btn.style.pointerEvents = 'none'; // Umożliwia chwytanie kontenera przez przycisk
+    });
 }
 
 function saveLayout() {
@@ -542,7 +560,10 @@ function cancelLayout() {
     document.getElementById('current-info').style.visibility = 'visible';
 
     // Odblokuj przyciski
-    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => btn.disabled = false);
+    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => {
+        btn.disabled = false;
+        btn.style.pointerEvents = 'auto';
+    });
 }
 
 function initializeLayoutPositions() {
@@ -638,5 +659,13 @@ function applySavedLayout() {
                 el.style.top = pos.top;
             }
         }
+    }
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.error(err));
+    } else {
+        document.exitFullscreen();
     }
 }
