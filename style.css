@@ -1,0 +1,253 @@
+:root {
+    --bg-color: #0f1113;
+    --card-bg: #1a1d21;
+    --accent-color: #7a8c99;
+    --text-color: #e0e0e0;
+    --highlight: #cfb53b;
+    --border-radius: 8px;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1514902142981-22920202611e?auto=format&fit=crop&q=80&w=1200') center/cover;
+    padding: 40px 0;
+    text-align: center;
+    border-bottom: 3px solid var(--highlight);
+}
+
+h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; color: var(--highlight); margin: 0; letter-spacing: 5px; }
+
+.container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+
+#game-setup {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.input-group { margin: 20px 0; font-size: 1.1rem; }
+
+input { 
+    background: #2d3339; border: 1px solid var(--accent-color); 
+    color: white; padding: 8px; border-radius: 4px; width: 60px; text-align: center;
+    margin: 0 10px;
+}
+
+.name-input {
+    width: 150px;
+    text-align: left;
+}
+
+button {
+    background: var(--highlight);
+    color: black;
+    border: none;
+    padding: 12px 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+button:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+.btn-secondary { background: #444; color: white; margin-top: 10px; }
+
+/* STÓŁ I KARTY */
+#game-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+#table-center {
+    width: 160px;
+    height: 220px;
+    border: 3px solid var(--highlight);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 50; /* Aby lecąca karta była nad innymi elementami */
+}
+
+.card {
+    width: 150px;
+    height: 210px;
+    background: white;
+    color: black;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 3.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    border: 1px solid #ccc;
+}
+
+#slap-alert {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    background: rgba(200, 0, 0, 0.9);
+    color: white;
+    padding: 10px 30px;
+    font-size: 2rem;
+    font-weight: bold;
+    border: 4px solid white;
+    border-radius: 10px;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 0 30px red;
+}
+
+#action-area {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#action-text {
+    font-size: 1.4rem;
+    color: var(--highlight);
+    font-weight: bold;
+}
+
+.card.red { color: #d00; }
+.card .suit { font-size: 4rem; margin-top: -10px; }
+
+.players-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.player-deck {
+    background: #2d3339;
+    width: 100px;
+    height: 140px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+.player-deck.active { 
+    border-color: var(--highlight); 
+    box-shadow: 0 0 20px var(--highlight);
+    transform: translateY(-10px);
+}
+
+#current-info { text-align: center; font-size: 1.2rem; }
+#active-player-name { color: var(--highlight); font-weight: bold; font-size: 1.5rem; }
+
+#penalty-area {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid red;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* MODAL */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 2px solid var(--highlight);
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    max-width: 400px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#info-message {
+    white-space: pre-wrap; /* Zachowuje formatowanie nowych linii (np. w Wojnie) */
+}
+
+/* ANIMACJE */
+@keyframes cardAppear {
+    0% { transform: translate(var(--start-x, 0px), var(--start-y, -200px)) scale(0.5) rotate(180deg); }
+    100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+.card-animate {
+    animation: cardAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* CUSTOM LAYOUT */
+.custom-layout {
+    display: block !important;
+    position: relative;
+    height: 80vh; /* Stała wysokość dla obszaru stołu */
+    width: 100%;
+    overflow: hidden;
+}
+
+.custom-layout .player-deck,
+.custom-layout #table-center,
+.custom-layout #btn-end-round-container,
+.custom-layout #btn-reset-container {
+    position: absolute;
+}
+
+.layout-mode .player-deck {
+    transition: none !important;
+    transform: none !important;
+}
+
+.custom-layout #btn-end-round-container,
+.custom-layout #btn-reset-container {
+    margin: 0 !important;
+    width: max-content;
+}
+
+.draggable { cursor: move; }
+
+/* ZASADY */
+.rules { background: var(--card-bg); padding: 30px; border-radius: var(--border-radius); margin-top: 40px; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
+th { color: var(--highlight); text-transform: uppercase; font-size: 0.8rem; }
+.separator { border: 0; border-top: 1px solid #333; margin: 40px 0; }
