@@ -132,6 +132,8 @@ function renderBoard() {
 }
 
 function playCard(playerIdx) {
+    if (document.getElementById('game-board').classList.contains('layout-mode')) return;
+
     const player = gameState.players[playerIdx];
     if (player.cards.length === 0) {
         showInfoModal("Brak kart", `${player.name} nie ma już kart!`);
@@ -508,6 +510,9 @@ function enterLayoutMode() {
     renderBoard();
     initializeLayoutPositions();
     enableDraggables();
+
+    // Zablokuj przyciski w kontenerach na stole
+    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => btn.disabled = true);
 }
 
 function saveLayout() {
@@ -535,6 +540,9 @@ function cancelLayout() {
     // Przywróć widoczność
     document.getElementById('action-area').style.visibility = 'visible';
     document.getElementById('current-info').style.visibility = 'visible';
+
+    // Odblokuj przyciski
+    document.querySelectorAll('#btn-end-round-container button, #btn-reset-container button').forEach(btn => btn.disabled = false);
 }
 
 function initializeLayoutPositions() {
