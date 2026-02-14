@@ -378,6 +378,12 @@ function takePile(playerIdx) {
         return;
     }
 
+    // Animacja zbierania kart
+    if (gameState.centerPile.length > 0) {
+        const topCard = gameState.centerPile[gameState.centerPile.length - 1];
+        animatePileToPlayer(playerIdx, topCard);
+    }
+
     const player = gameState.players[playerIdx];
     // Dodaj karty ze stosu na spód talii gracza
     while (gameState.centerPile.length > 0) {
@@ -441,10 +447,6 @@ function handlePenaltyReport(targetId, reporterName) {
     const targetPlayer = gameState.players[targetId];
     // Znajdź ID zgłaszającego po imieniu
     const reporterId = gameState.players.findIndex(p => p.name === reporterName);
-    let reporterId = gameState.players.findIndex(p => p.name === reporterName);
-    if (reporterId === -1) {
-        reporterId = gameState.players.findIndex(p => p.name === reporterName + " (Online)");
-    }
     const reporterPlayer = gameState.players[reporterId];
 
     if (!targetPlayer || !reporterPlayer) return;

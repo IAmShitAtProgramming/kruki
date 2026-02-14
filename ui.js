@@ -164,6 +164,47 @@ function handleResize() {
 }
 window.addEventListener('resize', handleResize);
 
+function animatePileToPlayer(playerIdx, cardData) {
+    const centerElem = document.getElementById('last-card-container');
+    const deckElem = document.getElementById(`player-deck-${playerIdx}`);
+    
+    if (!centerElem || !deckElem) return;
+
+    const flyingCard = document.createElement('div');
+    flyingCard.className = `card ${cardData ? cardData.color : ''}`;
+    
+    if (cardData) {
+        flyingCard.innerHTML = `<div>${cardData.val}</div><div class="suit">${cardData.suit}</div>`;
+    } else {
+        flyingCard.style.background = '#fff';
+    }
+
+    const centerRect = centerElem.getBoundingClientRect();
+    const deckRect = deckElem.getBoundingClientRect();
+
+    flyingCard.style.position = 'fixed';
+    flyingCard.style.left = centerRect.left + 'px';
+    flyingCard.style.top = centerRect.top + 'px';
+    flyingCard.style.width = '150px'; // Rozmiar zgodny z CSS .card
+    flyingCard.style.height = '210px';
+    flyingCard.style.zIndex = '2000';
+    flyingCard.style.transition = 'all 0.6s cubic-bezier(0.5, 0, 0, 1)';
+    flyingCard.style.transformOrigin = 'center center';
+    
+    document.body.appendChild(flyingCard);
+
+    requestAnimationFrame(() => {
+        flyingCard.style.left = deckRect.left + 'px';
+        flyingCard.style.top = deckRect.top + 'px';
+        flyingCard.style.transform = 'scale(0.2) rotate(360deg)';
+        flyingCard.style.opacity = '0.5';
+    });
+
+    setTimeout(() => {
+        flyingCard.remove();
+    }, 600);
+}
+
 // Eksport funkcji do zakresu globalnego
 window.renderBoard = renderBoard;
 window.toggleFullscreen = toggleFullscreen;
@@ -171,3 +212,4 @@ window.updateActionText = updateActionText;
 window.showPenaltyControls = showPenaltyControls;
 window.showErrorModal = showErrorModal;
 window.showInfoModal = showInfoModal;
+window.animatePileToPlayer = animatePileToPlayer;

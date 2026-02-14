@@ -66,15 +66,18 @@ function setGameMode(mode) {
     }
 }
 
-function addPlayer(name = "") {
+function addPlayer(name = "", isLocked = false) {
     const container = document.getElementById('player-names-container');
     const count = container.children.length + 1;
     const playerName = name || `Gracz ${count}`;
     
     const div = document.createElement('div');
     div.className = 'player-row';
+    
+    const readonlyAttr = isLocked ? 'readonly style="background-color: #3a3a3a; color: #aaa; cursor: not-allowed;"' : '';
+
     div.innerHTML = `
-        <input type="text" class="name-input" value="${playerName}" placeholder="Imię gracza">
+        <input type="text" class="name-input" value="${playerName}" placeholder="Imię gracza" ${readonlyAttr}>
         <button class="btn-secondary btn-icon" onclick="movePlayer(this, -1)" title="W górę">↑</button>
         <button class="btn-secondary btn-icon" onclick="movePlayer(this, 1)" title="W dół">↓</button>
         <button class="btn-secondary btn-icon" onclick="removePlayer(this)" title="Usuń" style="background: #800;">✕</button>

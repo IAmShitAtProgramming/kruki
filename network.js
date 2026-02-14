@@ -134,7 +134,8 @@ function sendAction(actionName, args) {
 function handleNetworkData(data) {
     if (data.type === 'STATE_UPDATE') {
         const oldPlayers = gameState.players;
-        const oldPileLen = gameState.centerPile.length;
+        const oldPile = gameState.centerPile;
+        const oldPileLen = oldPile ? oldPile.length : 0;
 
         // Klient otrzymuje stan od Hosta
         const localOnline = gameState.online; // Zachowaj lokalny stan online (isHost, myPlayerIdx, peer)
@@ -160,6 +161,29 @@ function handleNetworkData(data) {
             }
         }
         
+        // Jeśli stos został wyczyszczony (koniec rundy), ukryj panel kar i alerty
+        if (gameState.centerPile.length === 0) {
+            document.getElementById('penalty-area').style.display = 'none';
+            document.getElementById('slap-alert').style.display = 'none';
+        }
+
+        // Wykryj zebranie stosu (takePile) i uruchom animację
+        if (gameState.centerPile.length === 0 && oldPileLen > 0) {
+            let takerIdx = -1;
+            if (oldPlayers && oldPlayers.length === gameState.players.length) {
+                for (let i = 0; i < oldPlayers.length; i++) {
+                    if (gameState.players[i].cards.length > oldPlayers[i].cards.length) {
+                        takerIdx = i;
+                        break;
+                    }
+                }
+            }
+            if (takerIdx !== -1) {
+                const topCard = oldPile[oldPileLen - 1];
+                animatePileToPlayer(takerIdx, topCard);
+            }
+        }
+
         // Aktualizacja wizualna stosu (dla klienta, który nie wykonuje playCard)
         const centerContainer = document.getElementById('last-card-container');
         let animStyle = '';
@@ -225,7 +249,7 @@ function handleNetworkData(data) {
     } else if (data.type === 'JOIN_REQUEST') {
         // Host otrzymuje prośbę o dołączenie
         if (gameState.online.isHost) {
-            window.addPlayer(data.name + " (Online)");
+            window.addPlayer(data.name, true);
             const status = document.getElementById('host-status');
             status.innerText = `Gracz ${data.name} dołączył!`;
         }
