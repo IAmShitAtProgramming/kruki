@@ -157,6 +157,20 @@ function handleNetworkData(data) {
             }
         }
         
+        // Aktualizacja wizualna stosu (dla klienta, który nie wykonuje playCard)
+        const centerContainer = document.getElementById('last-card-container');
+        if (gameState.centerPile.length > 0) {
+            const topCard = gameState.centerPile[gameState.centerPile.length - 1];
+            centerContainer.innerHTML = `
+                <div class="card ${topCard.color}">
+                    <div>${topCard.val}</div>
+                    <div class="suit">${topCard.suit}</div>
+                </div>
+            `;
+        } else {
+            centerContainer.innerHTML = '<span style="color: #444;">STOS</span>';
+        }
+
         renderBoard();
         
         // Aktualizacja tekstu akcji dla klienta
