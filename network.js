@@ -13,7 +13,12 @@ function setupOnline(role) {
     document.getElementById('online-ui').style.display = 'block';
 
     // Inicjalizacja PeerJS
-    gameState.online.peer = new Peer();
+    if (role === 'host') {
+        const shortId = generateShortId();
+        gameState.online.peer = new Peer(shortId);
+    } else {
+        gameState.online.peer = new Peer();
+    }
 
     gameState.online.peer.on('open', (id) => {
         if (role === 'host') {
@@ -185,3 +190,12 @@ window.setupOnline = setupOnline;
 window.connectToHost = connectToHost;
 window.broadcastGameState = broadcastGameState;
 window.sendAction = sendAction;
+
+function generateShortId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
