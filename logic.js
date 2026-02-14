@@ -424,6 +424,62 @@ function resetGame() {
     }
 }
 
+function reportPenalty(targetId) {
+    if (gameState.online.active && !gameState.online.isHost) {
+        // Pobieramy własne imię z inputa, aby Host wiedział kto zgłasza
+        const myName = document.getElementById('join-player-name').value;
+        sendAction('handlePenaltyReport', [targetId, myName]);
+        
+        const container = document.getElementById('penalty-buttons');
+        container.innerHTML = '<p style="color: #cfb53b;">Wysłano zgłoszenie.<br>Oczekiwanie na decyzję Hosta.</p>';
+    }
+}
+
+function handlePenaltyReport(targetId, reporterName) {
+    if (!gameState.online.isHost) return;
+
+    const targetPlayer = gameState.players[targetId];
+    // Znajdź ID zgłaszającego po imieniu
+    const reporterId = gameState.players.findIndex(p => p.name === reporterName);
+    const reporterPlayer = gameState.players[reporterId];
+
+    if (!targetPlayer || !reporterPlayer) return;
+
+    const modal = document.getElementById('info-modal');
+    const btnContainer = modal.querySelector('.modal-buttons');
+    
+    document.getElementById('info-title').innerText = "Zgłoszenie Kruczka";
+    document.getElementById('info-message').innerText = `Gracz ${reporterPlayer.name} zgłasza błąd gracza ${targetPlayer.name}.\n\nCzy akceptujesz zgłoszenie?`;
+    
+    // Wyczyść przyciski i dodaj opcje decyzyjne
+    btnContainer.innerHTML = '';
+
+    const btnAccept = document.createElement('button');
+    btnAccept.innerText = `Akceptuj (Winny: ${targetPlayer.name})`;
+    btnAccept.className = "btn-secondary";
+    btnAccept.style.backgroundColor = "#b8860b";
+    btnAccept.onclick = () => {
+        modal.style.display = 'none';
+        btnContainer.innerHTML = '<button id="btn-info-ok" class="btn-secondary">OK</button>'; // Przywróć standardowy przycisk
+        takePile(targetId);
+    };
+
+    const btnReject = document.createElement('button');
+    btnReject.innerText = `Odrzuć (Winny: ${reporterPlayer.name})`;
+    btnReject.className = "btn-secondary";
+    btnReject.style.backgroundColor = "#800";
+    btnReject.onclick = () => {
+        modal.style.display = 'none';
+        btnContainer.innerHTML = '<button id="btn-info-ok" class="btn-secondary">OK</button>'; // Przywróć standardowy przycisk
+        takePile(reporterId);
+    };
+
+    btnContainer.appendChild(btnAccept);
+    btnContainer.appendChild(btnReject);
+    
+    modal.style.display = 'flex';
+}
+
 // Eksport funkcji do zakresu globalnego
 window.startGame = startGame;
 window.playCard = playCard;
@@ -431,3 +487,5 @@ window.resetGame = resetGame;
 window.resolveWar = resolveWar;
 window.takePile = takePile;
 window.setupWarUI = setupWarUI;
+window.reportPenalty = reportPenalty;
+window.handlePenaltyReport = handlePenaltyReport;

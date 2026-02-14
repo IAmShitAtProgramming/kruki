@@ -50,10 +50,21 @@ function showPenaltyControls() {
     const container = document.getElementById('penalty-buttons');
     container.innerHTML = '';
 
-    // ONLINE: Klient nie może zatwierdzać kar
+    // ONLINE: Klient wybiera gracza do zgłoszenia
     if (gameState.online.active && !gameState.online.isHost) {
-        container.innerHTML = '<p style="color: #cfb53b;">Zgłoszono kruczek.<br>Oczekiwanie na decyzję Hosta.</p>';
-        // Nie dodajemy przycisków akcji, tylko przycisk zamknięcia okna lokalnie
+        const p = document.createElement('p');
+        p.innerText = "Wybierz gracza, który popełnił błąd:";
+        p.style.color = "#cfb53b";
+        p.style.margin = "5px 0";
+        container.appendChild(p);
+
+        gameState.players.forEach(p => {
+            const btn = document.createElement('button');
+            btn.innerText = p.name;
+            btn.onclick = () => reportPenalty(p.id);
+            btn.style.margin = "5px";
+            container.appendChild(btn);
+        });
     } else {
         // HOST lub LOCAL: Pełne sterowanie
     gameState.players.forEach(p => {
