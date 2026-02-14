@@ -441,6 +441,10 @@ function handlePenaltyReport(targetId, reporterName) {
     const targetPlayer = gameState.players[targetId];
     // Znajdź ID zgłaszającego po imieniu
     const reporterId = gameState.players.findIndex(p => p.name === reporterName);
+    let reporterId = gameState.players.findIndex(p => p.name === reporterName);
+    if (reporterId === -1) {
+        reporterId = gameState.players.findIndex(p => p.name === reporterName + " (Online)");
+    }
     const reporterPlayer = gameState.players[reporterId];
 
     if (!targetPlayer || !reporterPlayer) return;
