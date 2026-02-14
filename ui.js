@@ -32,6 +32,14 @@ function renderBoard() {
     if (gameState.savedLayout) {
         applySavedLayout();
     }
+
+    // ONLINE: Ukryj przycisk "Zakończ grę" dla klientów
+    const resetContainer = document.getElementById('btn-reset-container');
+    if (gameState.online.active && !gameState.online.isHost) {
+        resetContainer.style.display = 'none';
+    } else {
+        resetContainer.style.display = 'block';
+    }
 }
 
 function updateActionText(text) {
@@ -41,6 +49,13 @@ function updateActionText(text) {
 function showPenaltyControls() {
     const container = document.getElementById('penalty-buttons');
     container.innerHTML = '';
+
+    // ONLINE: Klient nie może zatwierdzać kar
+    if (gameState.online.active && !gameState.online.isHost) {
+        container.innerHTML = '<p style="color: #cfb53b;">Zgłoszono kruczek.<br>Oczekiwanie na decyzję Hosta.</p>';
+        // Nie dodajemy przycisków akcji, tylko przycisk zamknięcia okna lokalnie
+    } else {
+        // HOST lub LOCAL: Pełne sterowanie
     gameState.players.forEach(p => {
         const btn = document.createElement('button');
         btn.innerText = p.name;
@@ -56,6 +71,7 @@ function showPenaltyControls() {
     warBtn.style.margin = "5px";
     warBtn.style.backgroundColor = "#b8860b"; // Ciemne złoto
     container.appendChild(warBtn);
+    }
     
     // Przycisk Anuluj (gdyby zgłoszono pomyłkowo)
     const cancelBtn = document.createElement('button');
@@ -77,14 +93,20 @@ function showErrorModal(playerIdx, message) {
     const msg = document.getElementById('error-message');
     msg.innerText = message || `${gameState.players[playerIdx].name} zagrał poza kolejnością!`;
     
-    document.getElementById('btn-undo').onclick = () => {
-        modal.style.display = 'none';
-    };
-    
-    document.getElementById('btn-penalty').onclick = () => {
-        modal.style.display = 'none';
-        takePile(playerIdx);
-    };
+    const btnUndo = document.getElementById('btn-undo');
+    const btnPenalty = document.getElementById('btn-penalty');
+
+    // ONLINE: Klient nie może cofać ruchów ani zatwierdzać kar z modala błędu
+    if (gameState.online.active && !gameState.online.isHost) {
+        btnUndo.style.display = 'none';
+        btnPenalty.style.display = 'none';
+    } else {
+        btnUndo.style.display = 'inline-block';
+        btnPenalty.style.display = 'inline-block';
+        
+        btnUndo.onclick = () => { modal.style.display = 'none'; };
+        btnPenalty.onclick = () => { modal.style.display = 'none'; takePile(playerIdx); };
+    }
     
     modal.style.display = 'flex';
 }
@@ -116,6 +138,20 @@ function toggleFullscreen() {
         document.exitFullscreen();
     }
 }
+
+function handleResize() {
+    const board = document.getElementById('game-board');
+    if (!board) return;
+
+    if (document.fullscreenElement) {
+        // Bazowa rozdzielczość np. 1280x720 - skalujemy względem niej
+        const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+        board.style.setProperty('--board-scale', scale);
+    } else {
+        board.style.setProperty('--board-scale', 1);
+    }
+}
+window.addEventListener('resize', handleResize);
 
 // Eksport funkcji do zakresu globalnego
 window.renderBoard = renderBoard;

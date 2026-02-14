@@ -6,7 +6,6 @@ function startGame() {
         return; 
     }
 
-    const pCount = parseInt(document.getElementById('players-count').value);
     const dCount = parseInt(document.getElementById('decks-count').value);
     const modeSelect = document.getElementById('game-mode');
     
@@ -31,11 +30,18 @@ function startGame() {
     }
 
     // Rozdawanie
-    gameState.players = Array.from({ length: pCount }, (_, i) => {
-        const nameInput = document.getElementById(`pname-${i}`);
+    const nameInputs = document.querySelectorAll('#player-names-container .name-input');
+    const pCount = nameInputs.length;
+
+    if (pCount < 2) {
+        showInfoModal("Błąd", "Wymaganych jest co najmniej 2 graczy!");
+        return;
+    }
+
+    gameState.players = Array.from(nameInputs).map((input, i) => {
         return {
             id: i,
-            name: nameInput ? nameInput.value : `Gracz ${i + 1}`,
+            name: input.value || `Gracz ${i + 1}`,
             cards: []
         };
     });
@@ -402,6 +408,11 @@ function takePile(playerIdx) {
 }
 
 function resetGame() {
+    // ONLINE: Tylko Host może zresetować grę
+    if (gameState.online.active && !gameState.online.isHost) {
+        return;
+    }
+
     // Reset UI
     document.getElementById('game-setup').style.display = 'block';
     document.getElementById('game-board').style.display = 'none';
@@ -416,13 +427,16 @@ function resetGame() {
 // --- LOGIKA SIECIOWA (PEERJS) ---
 
 function setupOnline(role) {
-    document.getElementById('online-controls').style.display = 'none';
+    document.getElementById('online-start').style.display = 'none';
     gameState.online.active = true;
     gameState.online.isHost = (role === 'host');
     gameState.online.myPlayerIdx = (role === 'host') ? 0 : 1;
+    if (role === 'host') gameState.online.conns = []; // Lista połączeń dla Hosta
 
     const statusDiv = document.getElementById('online-status');
     statusDiv.innerText = "Inicjalizacja połączenia...";
+
+    document.getElementById('online-ui').style.display = 'block';
 
     // Inicjalizacja PeerJS
     gameState.online.peer = new Peer();
@@ -430,17 +444,23 @@ function setupOnline(role) {
     gameState.online.peer.on('open', (id) => {
         if (role === 'host') {
             document.getElementById('host-ui').style.display = 'block';
+            // Host widzi konfigurację gry
+            document.getElementById('game-config').style.display = 'block';
+            document.getElementById('start-buttons').style.display = 'block';
+            
             document.getElementById('host-code').value = id;
             statusDiv.innerText = "Jesteś Hostem. Czekam na gracza...";
         } else {
             document.getElementById('join-ui').style.display = 'block';
+            // Klient NIE widzi konfiguracji
             statusDiv.innerText = "Wpisz kod hosta.";
         }
     });
 
     gameState.online.peer.on('connection', (conn) => {
         if (role === 'host') {
-            gameState.online.conn = conn;
+            // Host obsługuje wielu graczy
+            gameState.online.conns.push(conn);
             setupConnectionHandlers(conn);
             document.getElementById('host-status').innerText = "Gracz dołączył! Możesz rozpocząć grę.";
             document.getElementById('host-status').style.color = "#00ff00";
@@ -454,25 +474,34 @@ function setupOnline(role) {
 }
 
 function connectToHost() {
+    const name = document.getElementById('join-player-name').value;
+    if (!name) {
+        alert("Podaj swoje imię!");
+        return;
+    }
     const hostId = document.getElementById('join-code-input').value;
     if (!hostId) return;
 
     const conn = gameState.online.peer.connect(hostId);
     gameState.online.conn = conn;
-    setupConnectionHandlers(conn);
+    setupConnectionHandlers(conn, name);
     document.getElementById('online-status').innerText = "Łączenie...";
 }
 
-function setupConnectionHandlers(conn) {
+function setupConnectionHandlers(conn, myName = null) {
     conn.on('open', () => {
         document.getElementById('online-status').innerText = "Połączono!";
         document.getElementById('online-status').style.color = "#00ff00";
         
         // Jeśli to klient, ukrywamy przyciski startu (czeka na hosta)
         if (!gameState.online.isHost) {
-             document.querySelector('#game-setup button[onclick="startGame()"]').style.display = 'none';
-             document.querySelector('#game-setup button[onclick="enterLayoutMode()"]').style.display = 'none';
+             document.getElementById('start-buttons').style.display = 'none';
              document.getElementById('online-status').innerText += " Czekaj na rozpoczęcie gry przez Hosta.";
+             
+             // Wyślij prośbę o dołączenie z imieniem
+             if (myName) {
+                 conn.send({ type: 'JOIN_REQUEST', name: myName });
+             }
         }
     });
 
@@ -487,7 +516,16 @@ function setupConnectionHandlers(conn) {
 }
 
 function broadcastGameState() {
-    if (gameState.online.conn && gameState.online.conn.open) {
+    // Host wysyła do wszystkich połączonych
+    if (gameState.online.isHost && gameState.online.conns) {
+        gameState.online.conns.forEach(conn => {
+            if (conn.open) sendStateToConn(conn);
+        });
+    }
+}
+
+function sendStateToConn(conn) {
+    if (conn && conn.open) {
         // Wysyłamy kluczowe dane stanu
         const stateToSend = {
             type: 'STATE_UPDATE',
@@ -500,7 +538,7 @@ function broadcastGameState() {
             mode: gameState.mode,
             slapActive: gameState.slapActive
         };
-        gameState.online.conn.send(stateToSend);
+        conn.send(stateToSend);
     }
 }
 
@@ -557,6 +595,13 @@ function handleNetworkData(data) {
             if (typeof fn === 'function') {
                 fn.apply(null, [...data.args, true]); // Dodaj flagę isRemote=true
             }
+        }
+    } else if (data.type === 'JOIN_REQUEST') {
+        // Host otrzymuje prośbę o dołączenie
+        if (gameState.online.isHost) {
+            window.addPlayer(data.name + " (Online)");
+            const status = document.getElementById('host-status');
+            status.innerText = `Gracz ${data.name} dołączył!`;
         }
     }
 }

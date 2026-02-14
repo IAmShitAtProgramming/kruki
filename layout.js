@@ -2,16 +2,25 @@
 let selectedElement = null;
 
 function enterLayoutMode() {
-    const pCount = parseInt(document.getElementById('players-count').value) || 3;
+    const nameInputs = document.querySelectorAll('#player-names-container .name-input');
+    const pCount = nameInputs.length || 3;
     
+    // Oblicz szacowaną liczbę kart na gracza
+    const decksInput = document.getElementById('decks-count');
+    const dCount = decksInput ? (parseInt(decksInput.value) || 1) : 1;
+    const cardsPerPlayer = Math.floor((dCount * 52) / pCount);
+
     // Tymczasowi gracze do wizualizacji
-    gameState.players = Array.from({ length: pCount }, (_, i) => ({
-        id: i,
-        name: `Gracz ${i+1}`,
-        cards: Array(5).fill(0) // Atrapa kart
-    }));
+    gameState.players = Array.from({ length: pCount }, (_, i) => {
+        const inputName = nameInputs[i] ? nameInputs[i].value : '';
+        return {
+            id: i,
+            name: inputName || `Gracz ${i+1}`,
+            cards: Array(cardsPerPlayer).fill(0) // Atrapa kart
+        };
+    });
     
-    document.getElementById('game-setup').style.display = 'none';
+    // Nie ukrywamy game-setup, bo layout ma być modalem
     const board = document.getElementById('game-board');
     board.style.display = 'flex'; // Tymczasowo, zaraz nadpisze to klasa custom-layout
     board.classList.add('custom-layout');
@@ -71,6 +80,7 @@ function setupTransformListeners() {
             const currentRot = parseInt(selectedElement.dataset.rotation || 0);
             selectedElement.dataset.rotation = (currentRot + 90) % 360;
             updateElementTransform(selectedElement);
+            constrainElement(selectedElement);
         }
     };
 
@@ -78,6 +88,7 @@ function setupTransformListeners() {
         if (selectedElement) {
             selectedElement.dataset.scale = this.value;
             updateElementTransform(selectedElement);
+            constrainElement(selectedElement);
         }
     };
 }
@@ -91,11 +102,15 @@ function updateElementTransform(el) {
 function saveLayout() {
     gameState.savedLayout = {};
     const elements = document.querySelectorAll('.custom-layout .player-deck, #table-center, #btn-end-round-container, #btn-reset-container, #action-area');
+    const board = document.getElementById('game-board');
+    const w = board.offsetWidth;
+    const h = board.offsetHeight;
     
     elements.forEach(el => {
+        // Konwersja na procenty dla responsywności
         gameState.savedLayout[el.id] = {
-            left: el.style.left,
-            top: el.style.top,
+            left: el.style.left.includes('%') ? el.style.left : (parseFloat(el.style.left) / w * 100) + '%',
+            top: el.style.top.includes('%') ? el.style.top : (parseFloat(el.style.top) / h * 100) + '%',
             rotation: el.dataset.rotation || 0,
             scale: el.dataset.scale || 1
         };
@@ -105,7 +120,6 @@ function saveLayout() {
 }
 
 function cancelLayout() {
-    document.getElementById('game-setup').style.display = 'block';
     const board = document.getElementById('game-board');
     board.style.display = 'none';
     board.classList.remove('custom-layout');
@@ -148,8 +162,8 @@ function initializeLayoutPositions() {
     const setPos = (id, x, y) => {
         const el = document.getElementById(id);
         if (el) {
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
+            el.style.left = (x / width * 100) + '%';
+            el.style.top = (y / height * 100) + '%';
             // Reset transformacji dla domyślnego układu (jeśli nie ma zapisu)
             if (!gameState.savedLayout) resetElementTransform(el);
         }
@@ -173,7 +187,7 @@ function initializeLayoutPositions() {
     setPos('table-center', centerX - 80, centerY - 110); // 160x220 center
     setPos('action-area', centerX - 150, centerY + 120);
     setPos('btn-end-round-container', centerX - 100, centerY + 180);
-    setPos('btn-reset-container', centerX - 80, centerY + 230);
+    setPos('btn-reset-container', centerX - 80, centerY + 210); // Podniesiono wyżej, aby był widoczny
 
     const players = gameState.players;
     const radius = Math.min(width, height) / 2 - 100;
@@ -220,6 +234,9 @@ function dragElement(elmnt) {
     elmnt.ontouchstart = dragStart; // Obsługa dotyku
 
     function dragStart(e) {
+        // Blokada przesuwania, jeśli nie jesteśmy w trybie edycji
+        if (!document.getElementById('game-board').classList.contains('layout-mode')) return;
+
         // Zaznacz element przy kliknięciu
         selectElement(elmnt);
 
@@ -262,6 +279,7 @@ function dragElement(elmnt) {
         
         elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        constrainElement(elmnt);
     }
 
     function closeDragElement() {
@@ -288,6 +306,38 @@ function applySavedLayout() {
                 updateElementTransform(el);
             }
         }
+    }
+}
+
+function constrainElement(el) {
+    const board = document.getElementById('game-board');
+    if (!board) return;
+    const boardRect = board.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    
+    let correctionX = 0;
+    let correctionY = 0;
+    
+    // Sprawdź poziom
+    if (elRect.left < boardRect.left) {
+        correctionX = boardRect.left - elRect.left;
+    } else if (elRect.right > boardRect.right) {
+        correctionX = boardRect.right - elRect.right;
+    }
+    
+    // Sprawdź pion
+    if (elRect.top < boardRect.top) {
+        correctionY = boardRect.top - elRect.top;
+    } else if (elRect.bottom > boardRect.bottom) {
+        correctionY = boardRect.bottom - elRect.bottom;
+    }
+    
+    if (correctionX !== 0 || correctionY !== 0) {
+        const style = window.getComputedStyle(el);
+        const zoom = style.zoom ? parseFloat(style.zoom) : 1;
+        const z = zoom || 1;
+        el.style.left = (el.offsetLeft + correctionX / z) + 'px';
+        el.style.top = (el.offsetTop + correctionY / z) + 'px';
     }
 }
 
