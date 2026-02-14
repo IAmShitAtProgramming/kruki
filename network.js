@@ -133,6 +133,9 @@ function sendAction(actionName, args) {
 
 function handleNetworkData(data) {
     if (data.type === 'STATE_UPDATE') {
+        const oldPlayers = gameState.players;
+        const oldPileLen = gameState.centerPile.length;
+
         // Klient otrzymuje stan od Hosta
         const localOnline = gameState.online; // Zachowaj lokalny stan online (isHost, myPlayerIdx, peer)
         Object.assign(gameState, data); // Nadpisz stan lokalny
@@ -159,10 +162,40 @@ function handleNetworkData(data) {
         
         // Aktualizacja wizualna stosu (dla klienta, który nie wykonuje playCard)
         const centerContainer = document.getElementById('last-card-container');
+        let animStyle = '';
+        let shouldAnimate = false;
+
+        // Sprawdź czy doszła nowa karta i kto ją zagrał
+        if (gameState.centerPile.length > oldPileLen) {
+            let playerIdx = -1;
+            if (oldPlayers && oldPlayers.length === gameState.players.length) {
+                for (let i = 0; i < oldPlayers.length; i++) {
+                    if (oldPlayers[i].cards.length > gameState.players[i].cards.length) {
+                        playerIdx = i;
+                        break;
+                    }
+                }
+            }
+
+            if (playerIdx !== -1) {
+                const deckElem = document.getElementById(`player-deck-${playerIdx}`);
+                const centerElem = document.getElementById('last-card-container');
+                if (deckElem && centerElem) {
+                    const deckRect = deckElem.getBoundingClientRect();
+                    const centerRect = centerElem.getBoundingClientRect();
+                    const startX = (deckRect.left + deckRect.width / 2) - (centerRect.left + centerRect.width / 2);
+                    const startY = (deckRect.top + deckRect.height / 2) - (centerRect.top + centerRect.height / 2);
+                    animStyle = `--start-x: ${startX}px; --start-y: ${startY}px;`;
+                    shouldAnimate = true;
+                }
+            }
+        }
+
         if (gameState.centerPile.length > 0) {
             const topCard = gameState.centerPile[gameState.centerPile.length - 1];
+            const animateClass = shouldAnimate ? 'card-animate' : '';
             centerContainer.innerHTML = `
-                <div class="card ${topCard.color}">
+                <div class="card ${topCard.color} ${animateClass}" style="${animStyle}">
                     <div>${topCard.val}</div>
                     <div class="suit">${topCard.suit}</div>
                 </div>
