@@ -17,11 +17,11 @@
 }
 
 .theme-wood {
-    --table-bg: repeating-linear-gradient(45deg, #3e2723, #3e2723 10px, #4e342e 10px, #4e342e 20px);
-    --card-bg: #3e2723;
-    --accent-color: #d7ccc8;
-    --highlight: #ffab91;
-    --text-color: #ffe0b2;
+    --table-bg: url('Textures/Table_Wood.jpg') center/cover no-repeat;
+    --card-bg: url('Textures/Popup_Wood.jpg') center/cover no-repeat;
+    --accent-color: #000000;
+    --highlight: #ffffff;
+    --text-color: #000000;
 }
 
 .theme-ocean {
