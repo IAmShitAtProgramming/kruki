@@ -59,6 +59,7 @@ function startGame() {
     gameState.thumpingMode = false;
     gameState.mode = modeSelect ? modeSelect.value : 'learning';
     gameState.slapActive = false;
+    gameState.sevenPending = false; // Flaga dla mechaniki kradzieży przy 7
 
     document.getElementById('game-setup').style.display = 'none';
     document.getElementById('game-board').style.display = 'flex';
@@ -123,9 +124,37 @@ function playCard(playerIdx, isRemote = false) {
         return;
     }
 
+    // --- LOGIKA SIÓDEMKI (WYŚCIG) ---
+    const pCount = gameState.players.length;
+    // Obliczamy kto jest "następny" (kto może ukraść ruch przy 7)
+    const interceptorIdx = (gameState.currentPlayer + gameState.direction + pCount) % pCount;
+
+    if (gameState.sevenPending) {
+        if (playerIdx === interceptorIdx) {
+            // Sytuacja: Następny gracz rzucił kartę szybciej niż obecny przy 7!
+            // 1. Dodajemy kartę interceptora na stos (żeby też ją zabrał przegrany)
+            const card = player.cards.pop();
+            gameState.centerPile.push(card);
+            
+            // Wizualizacja karty (opcjonalna, ale warto pokazać co się stało)
+            const center = document.getElementById('last-card-container');
+            center.innerHTML = `<div class="card ${card.color}"><div>${card.val}</div><div class="suit">${card.suit}</div></div>`;
+
+            // 2. Obecny gracz (ten od 7) przegrywa
+            showInfoModal("Za wolno!", `${gameState.players[interceptorIdx].name} był szybszy! ${gameState.players[gameState.currentPlayer].name} zbiera karty.`);
+            takePile(gameState.currentPlayer);
+            return;
+        } else if (playerIdx === gameState.currentPlayer) {
+            // Sytuacja: Gracz zdążył zagrać drugą kartę. Resetujemy zagrożenie.
+            gameState.sevenPending = false;
+        }
+        // Jeśli zagrał ktoś inny niż obecny lub interceptor, wpadnie w standardowy błąd poniżej
+    }
+
     // Sprawdzenie kolejności (jeśli currentPlayer == -1, to pierwszy ruch jest zawsze poprawny)
-    if (gameState.currentPlayer !== -1 && playerIdx !== gameState.currentPlayer) {
-        showErrorModal(playerIdx);
+    // Dodatkowy warunek: Jeśli jest sevenPending, to interceptor TEŻ ma prawo ruchu (obsłużone wyżej, tu przepuszczamy)
+    if (gameState.currentPlayer !== -1 && playerIdx !== gameState.currentPlayer && (!gameState.sevenPending || playerIdx !== interceptorIdx)) {
+        showErrorModal(playerIdx); 
         return;
     }
 
@@ -237,6 +266,7 @@ function playCard(playerIdx, isRemote = false) {
             break;
         case 7: // Szczęśliwa Siódemka
             nextPlayerOffset = 0;
+            gameState.sevenPending = true; // Aktywacja trybu wyścigu
             break;
         case 8: // Falista Ósemka - pomija następnego gracza (bo on robi falę)
             nextPlayerOffset = gameState.direction * 2;
@@ -253,7 +283,6 @@ function playCard(playerIdx, isRemote = false) {
     }
 
     // Następny gracz
-    const pCount = gameState.players.length;
     gameState.currentPlayer = (gameState.currentPlayer + nextPlayerOffset + pCount) % pCount;
 
     renderBoard();
@@ -395,6 +424,7 @@ function takePile(playerIdx) {
     gameState.silentMode = false;
     gameState.thumpingMode = false;
     gameState.slapActive = false;
+    gameState.sevenPending = false;
     
     // Przegrany zaczyna
     gameState.currentPlayer = playerIdx;

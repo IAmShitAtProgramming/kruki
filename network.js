@@ -115,7 +115,8 @@ function sendStateToConn(conn) {
             silentMode: gameState.silentMode,
             thumpingMode: gameState.thumpingMode,
             mode: gameState.mode,
-            slapActive: gameState.slapActive
+            slapActive: gameState.slapActive,
+            sevenPending: gameState.sevenPending
         };
         conn.send(stateToSend);
     }
