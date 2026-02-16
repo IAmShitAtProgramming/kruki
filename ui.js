@@ -1,25 +1,67 @@
 // --- UI FUNCTIONS ---
 
-// System dźwięków - podmień ścieżki na własne pliki mp3/wav
-const audioFiles = {
-    card: null, // np. new Audio('sounds/card_place.mp3'),
-    shuffle: null, // np. new Audio('sounds/shuffle.mp3'),
-    error: null, // np. new Audio('sounds/error.mp3'),
-    slap: null, // np. new Audio('sounds/slap.mp3'),
-    win: null // np. new Audio('sounds/win.mp3')
-};
+// Prosty syntezator dźwięków (Web Audio API), aby działało bez zewnętrznych plików
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound(type) {
-    // Jeśli masz pliki, odkomentuj poniższe:
-    /*
-    if (audioFiles[type]) {
-        audioFiles[type].currentTime = 0;
-        audioFiles[type].play().catch(e => console.log("Audio play failed", e));
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
     }
-    */
     
-    // Dla celów deweloperskich - log w konsoli
-    // console.log(`[AUDIO] Playing sound: ${type}`);
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    switch (type) {
+        case 'card': // Krótkie "cyk"
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+            break;
+        case 'shuffle': // Szum/szuranie
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(100, now);
+            gainNode.gain.setValueAtTime(0.05, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
+            oscillator.start(now);
+            oscillator.stop(now + 0.15);
+            break;
+        case 'error': // Niskie buczenie
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, now);
+            oscillator.frequency.linearRampToValueAtTime(100, now + 0.3);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+            break;
+        case 'slap': // Alarm
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.frequency.setValueAtTime(1200, now + 0.1);
+            gainNode.gain.setValueAtTime(0.05, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+            break;
+        case 'win': // Pozytywny dźwięk
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, now);
+            oscillator.frequency.linearRampToValueAtTime(800, now + 0.3);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+            break;
+    }
 }
 
 function renderBoard() {
