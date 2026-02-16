@@ -163,6 +163,8 @@ function playCard(playerIdx, isRemote = false) {
         gameState.currentPlayer = playerIdx;
     }
 
+    playSound('card'); // Dźwięk położenia karty
+
     const card = player.cards.pop();
     const previousCard = gameState.centerPile[gameState.centerPile.length - 1];
     gameState.centerPile.push(card);
@@ -208,6 +210,7 @@ function playCard(playerIdx, isRemote = false) {
 
     const slapAlert = document.getElementById('slap-alert');
     if (slap) {
+        playSound('slap'); // Dźwięk uderzenia/alarmu
         gameState.slapActive = true;
         // W trybie kompetetywnym nie pokazujemy wielkiego napisu ani menu wyboru przegranego
         if (gameState.mode !== 'competitive') {
@@ -384,6 +387,7 @@ function resolveWar(playerIds) {
         showInfoModal("Wynik Wojny", warLog, () => takePile(losers[0].id));
     } else {
         // Remis wśród przegrywających - dogrywka
+        playSound('error'); // Dźwięk napięcia/błędu przy remisie
         if (minVal === 0) {
              showInfoModal("Wynik Wojny", warLog + "\n(Brak kart u przegranych)", () => takePile(losers[0].id));
              return;
@@ -434,6 +438,7 @@ function takePile(playerIdx) {
     document.getElementById('penalty-area').style.display = 'none';
     updateActionText("Nowa runda");
     renderBoard();
+    playSound('win'); // Dźwięk nowej rundy / zebrania
 
     showInfoModal("Koniec rundy", `${player.name} zbiera karty i rozpoczyna nową rundę!`);
 

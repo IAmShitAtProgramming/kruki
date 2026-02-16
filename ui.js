@@ -1,4 +1,27 @@
 // --- UI FUNCTIONS ---
+
+// System dźwięków - podmień ścieżki na własne pliki mp3/wav
+const audioFiles = {
+    card: null, // np. new Audio('sounds/card_place.mp3'),
+    shuffle: null, // np. new Audio('sounds/shuffle.mp3'),
+    error: null, // np. new Audio('sounds/error.mp3'),
+    slap: null, // np. new Audio('sounds/slap.mp3'),
+    win: null // np. new Audio('sounds/win.mp3')
+};
+
+function playSound(type) {
+    // Jeśli masz pliki, odkomentuj poniższe:
+    /*
+    if (audioFiles[type]) {
+        audioFiles[type].currentTime = 0;
+        audioFiles[type].play().catch(e => console.log("Audio play failed", e));
+    }
+    */
+    
+    // Dla celów deweloperskich - log w konsoli
+    // console.log(`[AUDIO] Playing sound: ${type}`);
+}
+
 function renderBoard() {
     const container = document.getElementById('players-container');
     container.innerHTML = '';
@@ -100,6 +123,7 @@ function showPenaltyControls() {
 }
 
 function showErrorModal(playerIdx, message) {
+    playSound('error');
     const modal = document.getElementById('error-modal');
     const msg = document.getElementById('error-message');
     msg.innerText = message || `${gameState.players[playerIdx].name} zagrał poza kolejnością!`;
@@ -169,6 +193,8 @@ function animatePileToPlayer(playerIdx, cardData) {
     const deckElem = document.getElementById(`player-deck-${playerIdx}`);
     
     if (!centerElem || !deckElem) return;
+    
+    playSound('shuffle'); // Dźwięk "szurania" przy animacji
 
     const flyingCard = document.createElement('div');
     flyingCard.className = `card ${cardData ? cardData.color : ''}`;
@@ -213,3 +239,4 @@ window.showPenaltyControls = showPenaltyControls;
 window.showErrorModal = showErrorModal;
 window.showInfoModal = showInfoModal;
 window.animatePileToPlayer = animatePileToPlayer;
+window.playSound = playSound;

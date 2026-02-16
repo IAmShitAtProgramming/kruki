@@ -105,6 +105,35 @@
             <div id="btn-reset-container" style="text-align:center; margin-top: 20px;">
                 <button onclick="resetGame()" class="btn-secondary">Zakończ grę</button>
             </div>
+
+            <!-- Modal Błędu -->
+            <div id="error-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Błąd Ruchu!</h3>
+                    <p id="error-message">To nie jest Twoja kolej.</p>
+                    <div class="modal-buttons">
+                        <button id="btn-undo" class="btn-secondary">Cofnij (Anuluj ruch)</button>
+                        <button id="btn-penalty">Zgłoś Kruczek (Przegrana)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Informacyjny (zamiast alert) -->
+            <div id="info-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3 id="info-title">Info</h3>
+                    <p id="info-message"></p>
+                    <div class="modal-buttons">
+                        <button id="btn-info-ok" class="btn-secondary">OK</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel sterowania układem -->
+            <div id="layout-controls" style="display:none; position: fixed; bottom: 20px; right: 20px; gap: 10px; z-index: 2000;">
+                <button onclick="saveLayout()">Zapisz układ</button>
+                <button onclick="cancelLayout()" class="btn-secondary">Anuluj</button>
+            </div>
         </div>
 
         <hr class="separator">
@@ -171,35 +200,6 @@
             </ul>
             <p>Jeśli kruczek był zgłoszony słusznie to osoba, do której był on zgłoszony zbiera karty ze stosu. W przeciwnym przypadku robi to osoba zgłaszająca.</p>
         </section>
-    </div>
-
-    <!-- Modal Błędu -->
-    <div id="error-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>Błąd Ruchu!</h3>
-            <p id="error-message">To nie jest Twoja kolej.</p>
-            <div class="modal-buttons">
-                <button id="btn-undo" class="btn-secondary">Cofnij (Anuluj ruch)</button>
-                <button id="btn-penalty">Zgłoś Kruczek (Przegrana)</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Informacyjny (zamiast alert) -->
-    <div id="info-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3 id="info-title">Info</h3>
-            <p id="info-message"></p>
-            <div class="modal-buttons">
-                <button id="btn-info-ok" class="btn-secondary">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Panel sterowania układem -->
-    <div id="layout-controls" style="display:none; position: fixed; bottom: 20px; right: 20px; gap: 10px; z-index: 2000;">
-        <button onclick="saveLayout()">Zapisz układ</button>
-        <button onclick="cancelLayout()" class="btn-secondary">Anuluj</button>
     </div>
 
     <script src="state.js"></script>

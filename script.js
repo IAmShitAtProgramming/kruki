@@ -27,6 +27,15 @@ window.onload = function() {
         if (txt.includes('zapisz układ')) btn.onclick = window.saveLayout;
         if (txt === 'anuluj' && btn.parentElement.id === 'layout-controls') btn.onclick = window.cancelLayout;
     });
+
+    // Zabezpieczenie przed przypadkowym zamknięciem/odświeżeniem
+    window.addEventListener('beforeunload', function (e) {
+        // Jeśli gra trwa (plansza jest widoczna), wyświetl ostrzeżenie
+        if (document.getElementById('game-board').style.display !== 'none') {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 };
 
 function initPlayerList() {

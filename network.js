@@ -28,6 +28,15 @@ function setupOnline(role) {
             document.getElementById('start-buttons').style.display = 'block';
             
             document.getElementById('host-code').value = id;
+            
+            // Dodaj funkcję kopiowania po kliknięciu
+            const codeInput = document.getElementById('host-code');
+            codeInput.style.cursor = "pointer";
+            codeInput.title = "Kliknij, aby skopiować";
+            codeInput.onclick = () => {
+                navigator.clipboard.writeText(id).then(() => alert("Kod skopiowany do schowka!"));
+            };
+
             statusDiv.innerText = "Jesteś Hostem. Czekam na gracza...";
         } else {
             document.getElementById('join-ui').style.display = 'block';
