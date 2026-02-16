@@ -7,6 +7,42 @@
     --border-radius: 8px;
 }
 
+/* MOTYWY STOŁU */
+.theme-casino {
+    --table-bg: radial-gradient(circle at center, #2e6b3e 0%, #1e4d2b 100%);
+    --card-bg: #14331c;
+    --accent-color: #ffd700;
+    --highlight: #ffcc00;
+    --text-color: #f0f0f0;
+}
+
+.theme-wood {
+    --table-bg: repeating-linear-gradient(45deg, #3e2723, #3e2723 10px, #4e342e 10px, #4e342e 20px);
+    --card-bg: #3e2723;
+    --accent-color: #d7ccc8;
+    --highlight: #ffab91;
+    --text-color: #ffe0b2;
+}
+
+.theme-ocean {
+    --table-bg: linear-gradient(135deg, #0d47a1 0%, #002171 100%);
+    --card-bg: #002171;
+    --accent-color: #80d8ff;
+    --highlight: #00e5ff;
+}
+
+/* Ramka podglądu motywu */
+.theme-preview {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--accent-color);
+    border-radius: 4px;
+    background: var(--table-bg, var(--bg-color)); /* Używa tła motywu lub domyślnego */
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
@@ -97,7 +133,19 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 30px;
+    
+    /* Neutralna ramka stołu */
+    background: var(--table-bg, var(--bg-color)); /* Domyślnie kolor tła, chyba że motyw nadpisze */
+    border: 15px solid #25282c; /* Ciemna, neutralna rama */
+    border-radius: 20px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.5);
+    padding: 40px;
+    margin: 20px auto;
+    max-width: none;
+    min-height: 0;
+    position: relative;
 }
 
 #game-board:fullscreen {
@@ -210,11 +258,18 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
 #active-player-name { color: var(--highlight); font-weight: bold; font-size: 1.5rem; }
 
 #penalty-area {
-    background: rgba(255, 0, 0, 0.1);
-    border: 1px solid red;
-    padding: 15px;
-    border-radius: 8px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-bg);
+    border: 2px solid var(--highlight);
+    padding: 20px;
+    border-radius: var(--border-radius);
     text-align: center;
+    z-index: 2500; /* Nad kartami (2000), pod modalem info (3000) */
+    box-shadow: 0 0 50px rgba(0,0,0,0.9);
+    min-width: 300px;
 }
 
 /* MODAL */

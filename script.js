@@ -3,6 +3,17 @@ window.onload = function() {
     initPlayerList();
     setGameMode('local'); // Domyślny tryb
 
+    // Ładowanie zapisanego motywu
+    const savedTheme = localStorage.getItem('kruki-theme');
+    if (savedTheme) {
+        // Upewnij się, że element istnieje przed nałożeniem klasy (choć onload gwarantuje DOM)
+        setTimeout(() => {
+            changeTheme(savedTheme);
+        }, 0);
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) themeSelect.value = savedTheme;
+    }
+
     // Awaryjne przypisanie przycisków (gdyby onclick w HTML nie zadziałał)
     const buttons = document.querySelectorAll('button');
     buttons.forEach(btn => {

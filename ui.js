@@ -2,39 +2,75 @@
 
 // Prosty syntezator dźwięków (Web Audio API), aby działało bez zewnętrznych plików
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let noiseBuffer = null;
+
+function initAudio() {
+    if (!audioCtx) return;
+    // Generowanie bufora szumu (biały szum) dla efektów kart
+    const bufferSize = audioCtx.sampleRate * 2; // 2 sekundy
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    noiseBuffer = buffer;
+}
+
+// Inicjalizacja przy pierwszym kliknięciu (wymagane przez przeglądarki, aby odblokować AudioContext)
+window.addEventListener('click', () => {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    if (!noiseBuffer) initAudio();
+}, { once: true });
 
 function playSound(type) {
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
+    if (!noiseBuffer) initAudio();
     
-    const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-
-    oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
-
     const now = audioCtx.currentTime;
 
-    switch (type) {
-        case 'card': // Krótkie "cyk"
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(600, now);
-            oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.1);
-            gainNode.gain.setValueAtTime(0.1, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            oscillator.start(now);
-            oscillator.stop(now + 0.1);
-            break;
-        case 'shuffle': // Szum/szuranie
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(100, now);
-            gainNode.gain.setValueAtTime(0.05, now);
-            gainNode.gain.linearRampToValueAtTime(0, now + 0.15);
-            oscillator.start(now);
-            oscillator.stop(now + 0.15);
-            break;
-        case 'error': // Niskie buczenie
+    if (type === 'card' || type === 'shuffle') {
+        // Dźwięki oparte na szumie (symulacja papieru)
+        const source = audioCtx.createBufferSource();
+        source.buffer = noiseBuffer;
+        const filter = audioCtx.createBiquadFilter();
+        
+        source.connect(filter);
+        filter.connect(gainNode);
+
+        if (type === 'card') {
+            // Efekt "Snap/Flip" - szybki, wysoki szum (uderzenie karty)
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2500, now);
+            
+            gainNode.gain.setValueAtTime(0.6, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            
+            source.start(now);
+            source.stop(now + 0.1);
+        } else if (type === 'shuffle') {
+            // Efekt "Szurania" - niższy, dłuższy szum
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(800, now);
+            
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.4, now + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.25);
+            
+            source.start(now);
+            source.stop(now + 0.3);
+        }
+    } else {
+        // Dźwięki tonalne (syntezator) dla interfejsu
+        const oscillator = audioCtx.createOscillator();
+        oscillator.connect(gainNode);
+
+        if (type === 'error') {
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(150, now);
             oscillator.frequency.linearRampToValueAtTime(100, now + 0.3);
@@ -42,8 +78,7 @@ function playSound(type) {
             gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
             oscillator.start(now);
             oscillator.stop(now + 0.3);
-            break;
-        case 'slap': // Alarm
+        } else if (type === 'slap') {
             oscillator.type = 'square';
             oscillator.frequency.setValueAtTime(800, now);
             oscillator.frequency.setValueAtTime(1200, now + 0.1);
@@ -51,8 +86,7 @@ function playSound(type) {
             gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
             oscillator.start(now);
             oscillator.stop(now + 0.3);
-            break;
-        case 'win': // Pozytywny dźwięk
+        } else if (type === 'win') {
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(400, now);
             oscillator.frequency.linearRampToValueAtTime(800, now + 0.3);
@@ -60,7 +94,7 @@ function playSound(type) {
             gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
             oscillator.start(now);
             oscillator.stop(now + 0.3);
-            break;
+        }
     }
 }
 
@@ -220,15 +254,49 @@ function handleResize() {
     const board = document.getElementById('game-board');
     if (!board) return;
 
+    const winW = window.innerWidth;
+    const winH = window.innerHeight;
+
     if (document.fullscreenElement) {
-        // Bazowa rozdzielczość np. 1280x720 - skalujemy względem niej
-        const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
-        board.style.setProperty('--board-scale', scale);
+        // Tryb pełnoekranowy - maksymalne wykorzystanie przestrzeni
+        board.style.width = '100vw';
+        board.style.height = '100vh';
+        board.style.aspectRatio = 'unset';
+        board.style.margin = '0';
+        board.style.borderRadius = '0';
+        board.style.border = 'none'; // Usuwamy ramkę, aby zyskać miejsce
+
+        // Skalowanie zawartości (bazowy obszar roboczy 1200x800)
+        const baseW = 1200;
+        const baseH = 800;
+        // Obliczamy skalę tak, aby wszystko się zmieściło (contain)
+        const scale = Math.min(winW / baseW, winH / baseH);
+        board.style.setProperty('--board-scale', scale * 0.95); // 0.95 marginesu bezpieczeństwa
     } else {
-        board.style.setProperty('--board-scale', 1);
+        // Tryb okienkowy - proporcje ekranu
+        const ratio = winW / winH;
+        board.style.aspectRatio = `${ratio}`;
+        board.style.width = '90%';
+        board.style.height = 'auto';
+        board.style.margin = '20px auto';
+        
+        // Przywracamy ramkę
+        board.style.border = '15px solid #25282c';
+        board.style.borderRadius = '20px';
+
+        // Skalowanie wewnątrz ramki (uwzględniamy padding 40px + border 15px = ~110px)
+        const rect = board.getBoundingClientRect();
+        const availableW = rect.width - 120;
+        const availableH = rect.height - 120;
+        
+        const baseW = 1200;
+        const baseH = 800;
+        const scale = Math.min(availableW / baseW, availableH / baseH);
+        board.style.setProperty('--board-scale', Math.max(0.4, scale));
     }
 }
 window.addEventListener('resize', handleResize);
+document.addEventListener('fullscreenchange', handleResize);
 
 function animatePileToPlayer(playerIdx, cardData) {
     const centerElem = document.getElementById('last-card-container');
@@ -273,6 +341,21 @@ function animatePileToPlayer(playerIdx, cardData) {
     }, 600);
 }
 
+function changeTheme(themeName) {
+    const board = document.getElementById('game-board');
+    const preview = document.getElementById('theme-preview');
+    const themes = ['theme-casino', 'theme-wood', 'theme-ocean'];
+
+    if (board) board.classList.remove(...themes);
+    if (preview) preview.classList.remove(...themes);
+
+    if (themeName !== 'default') {
+        if (board) board.classList.add(`theme-${themeName}`);
+        if (preview) preview.classList.add(`theme-${themeName}`);
+    }
+    localStorage.setItem('kruki-theme', themeName);
+}
+
 // Eksport funkcji do zakresu globalnego
 window.renderBoard = renderBoard;
 window.toggleFullscreen = toggleFullscreen;
@@ -281,4 +364,5 @@ window.showPenaltyControls = showPenaltyControls;
 window.showErrorModal = showErrorModal;
 window.showInfoModal = showInfoModal;
 window.animatePileToPlayer = animatePileToPlayer;
+window.changeTheme = changeTheme;
 window.playSound = playSound;

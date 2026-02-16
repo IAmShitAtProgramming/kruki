@@ -53,6 +53,16 @@
                     Liczba talii: <input type="number" id="decks-count" value="1" min="1" max="5">
                 </div>
                 <div class="input-group">
+                    Styl stołu: 
+                    <select id="theme-select" onchange="changeTheme(this.value)" style="background: #2d3339; border: 1px solid #7a8c99; color: white; padding: 8px; border-radius: 4px;">
+                        <option value="default">Domyślny (Ciemny)</option>
+                        <option value="casino">Kasyno (Zielony)</option>
+                        <option value="wood">Drewno (Klasyczny)</option>
+                        <option value="ocean">Ocean (Niebieski)</option>
+                    </select>
+                    <div id="theme-preview" class="theme-preview"></div>
+                </div>
+                <div class="input-group">
                     Tryb gry: <select id="game-mode" style="background: #2d3339; border: 1px solid #7a8c99; color: white; padding: 8px; border-radius: 4px;">
                         <option value="learning">Nauka (z podpowiedziami)</option>
                         <option value="competitive">Kompetetywny (bez podpowiedzi)</option>
