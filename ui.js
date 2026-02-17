@@ -256,6 +256,7 @@ function handleResize() {
 
     const winW = window.innerWidth;
     const winH = window.innerHeight;
+    const isPortrait = winH > winW;
 
     if (document.fullscreenElement) {
         // Tryb pełnoekranowy - maksymalne wykorzystanie przestrzeni
@@ -267,8 +268,9 @@ function handleResize() {
         board.style.border = 'none'; // Usuwamy ramkę, aby zyskać miejsce
 
         // Skalowanie zawartości (bazowy obszar roboczy 1200x800)
-        const baseW = 1200;
-        const baseH = 800;
+        // W trybie portretowym (mobilnym) zmniejszamy bazową szerokość, aby zwiększyć skalę
+        const baseW = isPortrait ? 480 : 1200;
+        const baseH = isPortrait ? 850 : 800;
         // Obliczamy skalę tak, aby wszystko się zmieściło (contain)
         const scale = Math.min(winW / baseW, winH / baseH);
         board.style.setProperty('--board-scale', scale * 0.95); // 0.95 marginesu bezpieczeństwa
@@ -289,8 +291,8 @@ function handleResize() {
         const availableW = rect.width - 120;
         const availableH = rect.height - 120;
         
-        const baseW = 1200;
-        const baseH = 800;
+        const baseW = isPortrait ? 480 : 1200;
+        const baseH = isPortrait ? 850 : 800;
         const scale = Math.min(availableW / baseW, availableH / baseH);
         board.style.setProperty('--board-scale', Math.max(0.4, scale));
     }
