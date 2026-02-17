@@ -182,8 +182,13 @@ function playCard(playerIdx, isRemote = false) {
         const deckRect = deckElem.getBoundingClientRect();
         const centerRect = centerElem.getBoundingClientRect();
         
-        const startX = (deckRect.left + deckRect.width / 2) - (centerRect.left + centerRect.width / 2);
-        const startY = (deckRect.top + deckRect.height / 2) - (centerRect.top + centerRect.height / 2);
+        // Korekta o zoom stołu (naprawa przesunięcia animacji)
+        const board = document.getElementById('game-board');
+        const scaleVar = window.getComputedStyle(board).getPropertyValue('--board-scale');
+        const zoom = parseFloat(scaleVar) || 1;
+
+        const startX = ((deckRect.left + deckRect.width / 2) - (centerRect.left + centerRect.width / 2)) / zoom;
+        const startY = ((deckRect.top + deckRect.height / 2) - (centerRect.top + centerRect.height / 2)) / zoom;
         
         animStyle = `--start-x: ${startX}px; --start-y: ${startY}px;`;
     }

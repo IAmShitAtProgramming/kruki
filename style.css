@@ -306,7 +306,7 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
 
 /* ANIMACJE */
 @keyframes cardAppear {
-    0% { transform: translate(var(--start-x, 0px), var(--start-y, -200px)) scale(0.5) rotate(180deg); }
+    0% { transform: translate(var(--start-x, 0px), var(--start-y, -200px)) scale(0.66) rotate(180deg); }
     100% { transform: translate(0, 0) scale(1) rotate(0deg); }
 }
 
@@ -350,6 +350,7 @@ button:hover { transform: scale(1.05); filter: brightness(1.1); }
 .custom-layout #btn-reset-container,
 .custom-layout #action-area {
     position: absolute;
+    zoom: 1 !important; /* Naprawa przeciągania w trybie edycji */
 }
 
 .layout-mode .player-deck {
