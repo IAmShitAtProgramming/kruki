@@ -258,6 +258,12 @@ function handleResize() {
     const winH = window.innerHeight;
     const isPortrait = winH > winW;
 
+    if (isPortrait) {
+        board.classList.add('portrait-mode');
+    } else {
+        board.classList.remove('portrait-mode');
+    }
+
     if (document.fullscreenElement) {
         // Tryb pełnoekranowy - maksymalne wykorzystanie przestrzeni
         board.style.width = '100vw';
@@ -272,7 +278,11 @@ function handleResize() {
         const baseW = isPortrait ? 480 : 1200;
         const baseH = isPortrait ? 850 : 800;
         // Obliczamy skalę tak, aby wszystko się zmieściło (contain)
-        const scale = Math.min(winW / baseW, winH / baseH);
+        let scale = Math.min(winW / baseW, winH / baseH);
+        // W trybie portretowym priorytet ma szerokość (pozwalamy na scrollowanie)
+        if (isPortrait) {
+            scale = winW / baseW;
+        }
         board.style.setProperty('--board-scale', scale * 0.95); // 0.95 marginesu bezpieczeństwa
     } else {
         // Tryb okienkowy - proporcje ekranu

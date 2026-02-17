@@ -416,3 +416,9 @@ th { color: var(--highlight); text-transform: uppercase; font-size: 0.8rem; }
     outline: 2px dashed #cfb53b; /* Złoty kolor */
     outline-offset: 5px;
 }
+
+/* Tryb portretowy (mobilny) */
+.portrait-mode .players-container {
+    flex-direction: column;
+    gap: 10px;
+}
