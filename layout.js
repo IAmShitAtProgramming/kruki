@@ -23,8 +23,8 @@ function enterLayoutMode() {
     // Nie ukrywamy game-setup, bo layout ma być modalem
     const board = document.getElementById('game-board');
     board.style.display = 'flex'; // Tymczasowo, zaraz nadpisze to klasa custom-layout
-    board.classList.add('custom-layout');
-    board.classList.add('layout-mode');
+    board.classList.remove('custom-layout');
+    board.classList.remove('layout-mode');
     
     document.getElementById('layout-controls').style.display = 'flex';
     
@@ -47,6 +47,12 @@ function enterLayoutMode() {
         setupTransformListeners();
     }
     
+    renderBoard();
+    initializeLayoutPositions();
+
+    board.classList.add('custom-layout');
+    board.classList.add('layout-mode');
+
     // Ukryj elementy niepotrzebne przy ustawianiu
     document.getElementById('current-info').style.visibility = 'hidden';
     document.getElementById('penalty-area').style.display = 'none';
@@ -60,8 +66,6 @@ function enterLayoutMode() {
     actionArea.style.borderRadius = '8px';
     document.getElementById('action-text').innerText = "OBSZAR KOMUNIKATÓW";
 
-    renderBoard();
-    initializeLayoutPositions();
     enableDraggables();
 
     // Zablokuj przyciski w kontenerach na stole
@@ -156,8 +160,6 @@ function initializeLayoutPositions() {
     const board = document.getElementById('game-board');
     const width = board.offsetWidth;
     const height = board.offsetHeight;
-    const centerX = width / 2;
-    const centerY = height / 2;
 
     const setPos = (id, x, y) => {
         const el = document.getElementById(id);
@@ -183,19 +185,23 @@ function initializeLayoutPositions() {
         return;
     }
 
-    // Domyślny układ (okrąg)
-    setPos('table-center', centerX - 80, centerY - 110); // 160x220 center
-    setPos('action-area', centerX - 150, centerY + 120);
-    setPos('btn-end-round-container', centerX - 100, centerY + 180);
-    setPos('btn-reset-container', centerX - 80, centerY + 210); // Podniesiono wyżej, aby był widoczny
+    // Domyślny układ (taki jak w grze) - pobieramy aktualne pozycje
+    const boardRect = board.getBoundingClientRect();
+    const style = window.getComputedStyle(board);
+    const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+    const borderTop = parseFloat(style.borderTopWidth) || 0;
 
-    const players = gameState.players;
-    const radius = Math.min(width, height) / 2 - 100;
-    players.forEach((p, i) => {
-        const angle = -(i / players.length) * 2 * Math.PI - Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle) - 50; // 100px width
-        const y = centerY + radius * Math.sin(angle) - 70; // 140px height
-        setPos(`player-deck-${i}`, x, y);
+    const ids = ['table-center', 'action-area', 'btn-end-round-container', 'btn-reset-container'];
+    gameState.players.forEach((_, i) => ids.push(`player-deck-${i}`));
+
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            const rect = el.getBoundingClientRect();
+            const x = rect.left - boardRect.left - borderLeft;
+            const y = rect.top - boardRect.top - borderTop;
+            setPos(id, x, y);
+        }
     });
 }
 
