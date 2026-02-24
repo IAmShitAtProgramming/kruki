@@ -66,6 +66,15 @@ header {
 
 h1 { font-family: 'Cinzel', serif; font-size: 6vmin; color: var(--highlight); margin: 0; letter-spacing: 0.5vmin; }
 
+.game-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.2vmin;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.5vmin;
+    font-weight: 300;
+    letter-spacing: 0.1vmin;
+}
+
 .container { max-width: 90%; margin: 3vmin auto; padding: 0 2vmin; }
 
 #game-setup {
@@ -471,4 +480,24 @@ th { color: var(--highlight); text-transform: uppercase; font-size: 1.5vmin; }
 
 .portrait-mode .player-deck {
     width: 25%;
+}
+
+footer {
+    text-align: center;
+    padding: 3vmin;
+    margin-top: 5vmin;
+    opacity: 0.6;
+}
+
+.github-link {
+    color: var(--highlight);
+    text-decoration: none;
+    font-size: 1.8vmin;
+    transition: 0.3s;
+}
+
+.github-link:hover {
+    opacity: 1;
+    text-shadow: 0 0 10px var(--highlight);
+    text-decoration: underline;
 }

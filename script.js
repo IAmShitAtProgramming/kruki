@@ -61,6 +61,8 @@ window.onload = function() {
             e.returnValue = '';
         }
     });
+
+    setupAuthorsAndFooter();
 };
 
 function initPlayerList() {
@@ -173,3 +175,23 @@ window.addPlayer = addPlayer;
 window.removePlayer = removePlayer;
 window.movePlayer = movePlayer;
 window.setGameMode = setGameMode;
+
+function setupAuthorsAndFooter() {
+    const footer = document.querySelector('footer');
+    const header = document.querySelector('header');
+    const h1 = header ? header.querySelector('h1') : null;
+
+    if (footer && h1) {
+        const authorsText = footer.innerText.trim();
+        if (authorsText) {
+            const subtitle = document.createElement('div');
+            subtitle.className = 'game-subtitle';
+            subtitle.innerText = authorsText;
+            h1.parentNode.insertBefore(subtitle, h1.nextSibling);
+        }
+        
+        footer.innerHTML = `<a href="https://github.com/IAmShitAtProgramming/kruki" target="_blank" class="github-link">
+            GitHub Repo
+        </a>`;
+    }
+}
