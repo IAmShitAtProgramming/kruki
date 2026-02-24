@@ -48,6 +48,10 @@ function enterLayoutMode() {
     }
     
     renderBoard();
+
+    // Wymuś przeliczenie układu (reflow), aby getBoundingClientRect zwrócił poprawne wartości
+    void board.offsetHeight;
+
     initializeLayoutPositions();
 
     board.classList.add('custom-layout');
