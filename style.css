@@ -459,7 +459,7 @@ th { color: var(--highlight); text-transform: uppercase; font-size: 1.5vmin; }
 
 /* Tryb portretowy (mobilny) */
 .portrait-mode .players-container {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 1vmin;
 }
