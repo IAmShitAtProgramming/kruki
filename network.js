@@ -235,8 +235,9 @@ function handleNetworkData(data) {
             const animateClass = shouldAnimate ? 'card-animate' : '';
             centerContainer.innerHTML = `
                 <div class="card ${topCard.color} ${animateClass}" style="${animStyle}">
-                    <div>${topCard.val}</div>
-                    <div class="suit">${topCard.suit}</div>
+                    <div class="card-corner top-left"><div>${topCard.val}</div><div>${topCard.suit}</div></div>
+                    <div class="card-center-suit">${topCard.suit}</div>
+                    <div class="card-corner bottom-right"><div>${topCard.val}</div><div>${topCard.suit}</div></div>
                 </div>
             `;
         } else {

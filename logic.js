@@ -86,6 +86,9 @@ function startGame() {
         applySavedLayout();
     }
 
+    // Przelicz skalę i wymiary planszy po jej wyświetleniu
+    handleResize();
+
     updateActionText(gameState.mode === 'learning' ? "Rozpoczyna dowolny gracz" : "Gra rozpoczęta");
 
     // Jeśli Host, wyślij stan początkowy
@@ -138,7 +141,11 @@ function playCard(playerIdx, isRemote = false) {
             
             // Wizualizacja karty (opcjonalna, ale warto pokazać co się stało)
             const center = document.getElementById('last-card-container');
-            center.innerHTML = `<div class="card ${card.color}"><div>${card.val}</div><div class="suit">${card.suit}</div></div>`;
+            center.innerHTML = `<div class="card ${card.color}">
+                <div class="card-corner top-left"><div>${card.val}</div><div>${card.suit}</div></div>
+                <div class="card-center-suit">${card.suit}</div>
+                <div class="card-corner bottom-right"><div>${card.val}</div><div>${card.suit}</div></div>
+            </div>`;
 
             // 2. Obecny gracz (ten od 7) przegrywa
             showInfoModal("Za wolno!", `${gameState.players[interceptorIdx].name} był szybszy! ${gameState.players[gameState.currentPlayer].name} zbiera karty.`);
@@ -197,8 +204,9 @@ function playCard(playerIdx, isRemote = false) {
     const center = document.getElementById('last-card-container');
     center.innerHTML = `
         <div class="card ${card.color} card-animate" style="${animStyle}">
-            <div>${card.val}</div>
-            <div class="suit">${card.suit}</div>
+            <div class="card-corner top-left"><div>${card.val}</div><div>${card.suit}</div></div>
+            <div class="card-center-suit">${card.suit}</div>
+            <div class="card-corner bottom-right"><div>${card.val}</div><div>${card.suit}</div></div>
         </div>
     `;
 

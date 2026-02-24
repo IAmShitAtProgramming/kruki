@@ -1,5 +1,19 @@
 // Inicjalizacja pól nazw przy starcie
 window.onload = function() {
+    // Wstrzyknięcie stylów dla list rozwijanych (select), aby pasowały do ciemnego motywu
+    const style = document.createElement('style');
+    style.textContent = `
+        select {
+            background-color: #2d3339;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        option { background-color: #2d3339; color: #fff; }
+    `;
+    document.head.appendChild(style);
+
     initPlayerList();
     setGameMode('local'); // Domyślny tryb
 
@@ -103,6 +117,7 @@ function addPlayer(name = "", isLocked = false) {
         <button class="btn-secondary btn-icon" onclick="removePlayer(this)" title="Usuń" style="background: #800;">✕</button>
     `;
     container.appendChild(div);
+    updatePlayerArrows();
 }
 
 function removePlayer(btn) {
@@ -112,6 +127,7 @@ function removePlayer(btn) {
         return;
     }
     btn.parentElement.remove();
+    updatePlayerArrows();
 }
 
 function movePlayer(btn, direction) {
@@ -125,6 +141,31 @@ function movePlayer(btn, direction) {
     } else if (direction === 1 && index < siblings.length - 1) {
         container.insertBefore(row, siblings[index + 1].nextSibling);
     }
+    updatePlayerArrows();
+}
+
+function updatePlayerArrows() {
+    const rows = document.querySelectorAll('#player-names-container .player-row');
+    rows.forEach((row, index) => {
+        const upBtn = row.querySelector('button[title="W górę"]');
+        const downBtn = row.querySelector('button[title="W dół"]');
+        
+        if (upBtn) {
+            upBtn.style.visibility = 'visible';
+            const isFirst = index === 0;
+            upBtn.disabled = isFirst;
+            upBtn.style.opacity = isFirst ? '0.3' : '1';
+            upBtn.style.cursor = isFirst ? 'default' : 'pointer';
+        }
+
+        if (downBtn) {
+            downBtn.style.visibility = 'visible';
+            const isLast = index === rows.length - 1;
+            downBtn.disabled = isLast;
+            downBtn.style.opacity = isLast ? '0.3' : '1';
+            downBtn.style.cursor = isLast ? 'default' : 'pointer';
+        }
+    });
 }
 
 // Eksport funkcji dla HTML onclick

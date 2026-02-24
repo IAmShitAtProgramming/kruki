@@ -57,14 +57,21 @@ function enterLayoutMode() {
     document.getElementById('current-info').style.visibility = 'hidden';
     document.getElementById('penalty-area').style.display = 'none';
 
-    // Pokaż obszar komunikatów do ustawienia
+    // Pokaż obszar wskazówek (tylko w trybie nauki)
     const actionArea = document.getElementById('action-area');
-    actionArea.style.visibility = 'visible';
-    actionArea.style.border = '2px dashed #7a8c99';
-    actionArea.style.backgroundColor = 'rgba(0,0,0,0.5)';
-    actionArea.style.padding = '10px';
-    actionArea.style.borderRadius = '8px';
-    document.getElementById('action-text').innerText = "OBSZAR KOMUNIKATÓW";
+    const modeSelect = document.getElementById('game-mode');
+    const isLearning = modeSelect ? modeSelect.value === 'learning' : true;
+
+    if (isLearning) {
+        actionArea.style.visibility = 'visible';
+        actionArea.style.border = '2px dashed #7a8c99';
+        actionArea.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        actionArea.style.padding = '10px';
+        actionArea.style.borderRadius = '8px';
+        document.getElementById('action-text').innerText = "WSKAZÓWKI";
+    } else {
+        actionArea.style.visibility = 'hidden';
+    }
 
     enableDraggables();
 
@@ -278,13 +285,18 @@ function dragElement(elmnt) {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-        pos1 = pos3 - clientX;
-        pos2 = pos4 - clientY;
+        const deltaX = clientX - pos3;
+        const deltaY = clientY - pos4;
         pos3 = clientX;
         pos4 = clientY;
         
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        const parent = elmnt.offsetParent || document.body;
+        const newLeft = elmnt.offsetLeft + deltaX;
+        const newTop = elmnt.offsetTop + deltaY;
+
+        elmnt.style.left = (newLeft / parent.offsetWidth * 100) + "%";
+        elmnt.style.top = (newTop / parent.offsetHeight * 100) + "%";
+        
         constrainElement(elmnt);
     }
 
@@ -321,30 +333,24 @@ function constrainElement(el) {
     const boardRect = board.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
     
-    let correctionX = 0;
-    let correctionY = 0;
+    // Pobierz aktualne pozycje w %
+    let leftPerc = parseFloat(el.style.left) || 0;
+    let topPerc = parseFloat(el.style.top) || 0;
+    
+    // Konwersja wymiarów elementu na % planszy
+    const elWidthPerc = (elRect.width / boardRect.width) * 100;
+    const elHeightPerc = (elRect.height / boardRect.height) * 100;
     
     // Sprawdź poziom
-    if (elRect.left < boardRect.left) {
-        correctionX = boardRect.left - elRect.left;
-    } else if (elRect.right > boardRect.right) {
-        correctionX = boardRect.right - elRect.right;
-    }
+    if (leftPerc < 0) leftPerc = 0;
+    if (leftPerc + elWidthPerc > 100) leftPerc = 100 - elWidthPerc;
     
     // Sprawdź pion
-    if (elRect.top < boardRect.top) {
-        correctionY = boardRect.top - elRect.top;
-    } else if (elRect.bottom > boardRect.bottom) {
-        correctionY = boardRect.bottom - elRect.bottom;
-    }
+    if (topPerc < 0) topPerc = 0;
+    if (topPerc + elHeightPerc > 100) topPerc = 100 - elHeightPerc;
     
-    if (correctionX !== 0 || correctionY !== 0) {
-        const style = window.getComputedStyle(el);
-        const zoom = style.zoom ? parseFloat(style.zoom) : 1;
-        const z = zoom || 1;
-        el.style.left = (el.offsetLeft + correctionX / z) + 'px';
-        el.style.top = (el.offsetTop + correctionY / z) + 'px';
-    }
+    el.style.left = leftPerc + '%';
+    el.style.top = topPerc + '%';
 }
 
 // Eksport funkcji do zakresu globalnego

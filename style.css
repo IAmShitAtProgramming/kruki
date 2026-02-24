@@ -4,7 +4,7 @@
     --accent-color: #006400;
     --text-color: #ffffff;
     --highlight: #ffffff;
-    --border-radius: 12px;
+    --border-radius: 1.5vmin;
     --input-bg: #000000;
     --deck-bg: #000000;
     --modal-bg: #000000;
@@ -38,14 +38,14 @@
 
 /* Ramka podglądu motywu */
 .theme-preview {
-    width: 36px;
-    height: 36px;
+    width: 4vmin;
+    height: 4vmin;
     border: 2px solid var(--accent-color);
     border-radius: 4px;
     background: var(--table-bg, var(--bg-color)); /* Używa tła motywu lub domyślnego */
     display: inline-block;
     vertical-align: middle;
-    margin-left: 10px;
+    margin-left: 1vmin;
 }
 
 body {
@@ -59,78 +59,81 @@ body {
 
 header {
     background: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1514902142981-22920202611e?auto=format&fit=crop&q=80&w=1200') center/cover;
-    padding: 40px 0;
+    padding: 4vmin 0;
     text-align: center;
-    border-bottom: 3px solid var(--highlight);
+    border-bottom: 0.4vmin solid var(--highlight);
 }
 
-h1 { font-family: 'Cinzel', serif; font-size: 3.5rem; color: var(--highlight); margin: 0; letter-spacing: 5px; }
+h1 { font-family: 'Cinzel', serif; font-size: 6vmin; color: var(--highlight); margin: 0; letter-spacing: 0.5vmin; }
 
-.container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+.container { max-width: 90%; margin: 3vmin auto; padding: 0 2vmin; }
 
 #game-setup {
     background: var(--card-bg);
-    padding: 30px;
-    border-radius: 16px;
+    padding: 3vmin;
+    border-radius: 2vmin;
     text-align: center;
     box-shadow: 0 0 30px rgba(0, 100, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.1);
     border: 1px solid var(--accent-color);
 }
 
-.input-group { margin: 20px 0; font-size: 1.1rem; }
+.input-group { margin: 2vmin 0; font-size: 2vmin; }
 
 input { 
     background: linear-gradient(to bottom, #001f3f, #000000); 
     border: 1px solid #003366; 
-    color: #ffffff; padding: 8px; border-radius: 4px; width: 60px; text-align: center;
-    margin: 0 10px;
+    color: #ffffff; padding: 1vmin; border-radius: 0.5vmin; width: 8vmin; text-align: center;
+    margin: 0 1vmin;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
     transition: 0.3s;
+    font-size: 2vmin;
 }
 
 select {
     background: linear-gradient(to bottom, #001f3f, #000000);
     border: 1px solid #003366;
     color: #ffffff;
-    padding: 8px;
-    border-radius: 4px;
-    margin: 0 10px;
+    padding: 1vmin;
+    border-radius: 0.5vmin;
+    margin: 0 1vmin;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
     transition: 0.3s;
+    font-size: 2vmin;
 }
 
 .name-input {
-    width: 150px;
+    width: 20vmin;
     text-align: left;
 }
 
 .player-row {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 1vmin;
     background: rgba(128, 128, 128, 0.1);
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 1vmin 2vmin;
+    border-radius: 0.5vmin;
 }
 
 .btn-icon {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    min-width: 30px;
+    padding: 0.5vmin 1vmin;
+    font-size: 1.5vmin;
+    min-width: 3vmin;
 }
 
 button {
     background: linear-gradient(to bottom, #002a50, #000000);
     color: #ffffff;
     border: 1px solid #003366;
-    padding: 12px 30px;
+    padding: 1.5vmin 3vmin;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 1vmin;
     transition: 0.2s;
     box-shadow: 0 4px 0 #001a33, 0 5px 10px rgba(0,0,0,0.3);
     text-shadow: none;
+    font-size: 2vmin;
 }
 
 button:hover { transform: translateY(-2px); filter: brightness(1.2); box-shadow: 0 6px 0 #001a33, 0 8px 15px rgba(0,0,0,0.4); }
@@ -160,15 +163,15 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 3vmin;
     
     /* Neutralna ramka stołu */
     background: var(--table-bg, var(--bg-color)); /* Domyślnie kolor tła, chyba że motyw nadpisze */
-    border: 15px solid #111; /* Ciemna, neutralna rama */
-    border-radius: 40px;
+    border: 1.5vmin solid #111; /* Ciemna, neutralna rama */
+    border-radius: 4vmin;
     box-shadow: inset 0 0 80px rgba(0,0,0,0.5), 0 20px 60px rgba(0,0,0,0.4), 0 0 0 2px rgba(128,128,128,0.1);
-    padding: 40px;
-    margin: 20px auto;
+    padding: 4vmin;
+    margin: 2vmin auto;
     max-width: none;
     min-height: 0;
     position: relative;
@@ -189,10 +192,11 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 }
 
 #table-center {
-    width: 160px;
-    height: 220px;
-    border: 3px dashed rgba(255,255,255,0.3);
-    border-radius: 12px;
+    width: 14%;
+    height: auto;
+    aspect-ratio: 0.72; /* ~160/220 */
+    border: 0.4vmin dashed rgba(255,255,255,0.3);
+    border-radius: 1.5vmin;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -202,19 +206,29 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 }
 
 .card {
-    width: 150px;
-    height: 210px;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 0.714; /* 5/7 */
     background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
     color: black;
-    border-radius: 10px;
+    border-radius: 1.2vmin;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 3.5rem;
+    font-family: 'Times New Roman', serif;
+    position: relative;
     box-shadow: 0 5px 15px var(--shadow-color);
     border: 1px solid #ddd;
+}
+
+#last-card-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #slap-alert {
@@ -224,11 +238,11 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     transform: translate(-50%, -50%) rotate(-15deg);
     background: rgba(200, 0, 0, 0.9);
     color: white;
-    padding: 10px 30px;
-    font-size: 2rem;
+    padding: 1.5vmin 4vmin;
+    font-size: 4vmin;
     font-weight: bold;
-    border: 4px solid white;
-    border-radius: 10px;
+    border: 0.5vmin solid white;
+    border-radius: 1.5vmin;
     z-index: 100;
     pointer-events: none;
     white-space: nowrap;
@@ -236,7 +250,7 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 }
 
 #action-area {
-    min-height: 60px;
+    min-height: 8%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -244,20 +258,44 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 }
 
 #action-text {
-    font-size: 1.4rem;
+    font-size: 2.5vmin;
     color: var(--text-color);
     text-shadow: 0 0 10px var(--shadow-color);
     font-weight: bold;
 }
 
 .card.red { color: #d00; }
-.card .suit { font-size: 4rem; margin-top: -10px; }
+
+.card-corner {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 3vmin;
+    line-height: 0.9;
+}
+
+.card-corner.top-left {
+    top: 0.5vmin;
+    left: 0.5vmin;
+}
+
+.card-corner.bottom-right {
+    bottom: 0.5vmin;
+    right: 0.5vmin;
+    transform: rotate(180deg);
+}
+
+.card-center-suit {
+    font-size: 10vmin;
+    line-height: 1;
+}
 
 .players-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px;
+    gap: 2vmin;
     width: 100%;
 }
 
@@ -267,8 +305,9 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    width: 100px;
-    height: 140px;
+    width: 10%;
+    height: auto;
+    aspect-ratio: 0.714; /* 5/7 */
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: column;
@@ -279,6 +318,7 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     transition: 0.3s;
     box-shadow: 0 5px 15px var(--shadow-color);
     text-shadow: 0 2px 5px rgba(0,0,0,0.9);
+    font-size: 1.5vmin;
 }
 
 .player-deck.active { 
@@ -287,8 +327,8 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     transform: translateY(-10px);
 }
 
-#current-info { text-align: center; font-size: 1.2rem; }
-#active-player-name { color: var(--highlight); font-weight: bold; font-size: 1.5rem; }
+#current-info { text-align: center; font-size: 2vmin; }
+#active-player-name { color: var(--highlight); font-weight: bold; font-size: 2.5vmin; }
 
 #penalty-area {
     position: fixed;
@@ -297,12 +337,12 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
     transform: translate(-50%, -50%);
     background: var(--modal-bg);
     border: 2px solid var(--accent-color);
-    padding: 20px;
+    padding: 3vmin;
     border-radius: var(--border-radius);
     text-align: center;
     z-index: 2500; /* Nad kartami (2000), pod modalem info (3000) */
     box-shadow: 0 0 50px var(--shadow-color), 0 0 20px rgba(0, 100, 0, 0.3);
-    min-width: 300px;
+    min-width: 30%;
 }
 
 /* MODAL */
@@ -319,19 +359,19 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 
 .modal-content {
     background: var(--modal-bg);
-    padding: 30px;
-    border-radius: 16px;
+    padding: 4vmin;
+    border-radius: 2vmin;
     text-align: center;
     border: 1px solid var(--accent-color);
     box-shadow: 0 0 40px var(--shadow-color);
-    max-width: 400px;
+    max-width: 80%;
 }
 
 .modal-buttons {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 2vmin;
+    margin-top: 3vmin;
 }
 
 #info-message {
@@ -346,11 +386,6 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 
 .card-animate {
     animation: cardAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-/* Skalowanie elementów w trybie pełnoekranowym */
-.player-deck, #table-center, #action-area, #btn-end-round-container, #btn-reset-container, #current-info {
-    zoom: var(--board-scale, 1);
 }
 
 /* CUSTOM LAYOUT */
@@ -384,13 +419,11 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 .custom-layout #btn-reset-container,
 .custom-layout #action-area {
     position: absolute;
-    zoom: 1 !important; /* Naprawa przeciągania w trybie edycji */
 }
 
 .layout-mode .player-deck {
     transition: none !important;
 }
-
 .custom-layout #btn-end-round-container,
 .custom-layout #btn-reset-container {
     margin: 0 !important;
@@ -402,14 +435,14 @@ button:active { transform: translateY(2px); box-shadow: 0 2px 0 #001a33, 0 3px 5
 /* ZASADY */
 .rules { 
     background: var(--card-bg);
-    padding: 30px; 
+    padding: 4vmin; 
     border-radius: var(--border-radius); 
-    margin-top: 40px; 
+    margin-top: 5vmin; 
 }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
-th { color: var(--highlight); text-transform: uppercase; font-size: 0.8rem; }
-.separator { border: 0; border-top: 1px solid #333; margin: 40px 0; }
+table { width: 100%; border-collapse: collapse; margin-top: 2vmin; }
+th, td { text-align: left; padding: 1.5vmin; border-bottom: 1px solid #333; }
+th { color: var(--highlight); text-transform: uppercase; font-size: 1.5vmin; }
+.separator { border: 0; border-top: 1px solid #333; margin: 5vmin 0; }
 
 /* Edycja układu */
 .selected-element {
@@ -420,5 +453,14 @@ th { color: var(--highlight); text-transform: uppercase; font-size: 0.8rem; }
 /* Tryb portretowy (mobilny) */
 .portrait-mode .players-container {
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 1vmin;
+}
+
+.portrait-mode #table-center {
+    width: 40%;
+}
+
+.portrait-mode .player-deck {
+    width: 25%;
 }

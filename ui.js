@@ -110,7 +110,7 @@ function renderBoard() {
         deck.className = `player-deck ${isActive ? 'active' : ''}`;
         deck.innerHTML = `
             <small>${player.name}</small>
-            <strong style="font-size: 1.5rem">${player.cards.length}</strong>
+            <strong style="font-size: 3vmin">${player.cards.length}</strong>
             <small>KART</small>
         `;
         deck.onclick = () => playCard(idx);
@@ -254,6 +254,9 @@ function handleResize() {
     const board = document.getElementById('game-board');
     if (!board) return;
 
+    // Jeśli jesteśmy w trybie edycji układu, nie nadpisujemy stylów
+    if (board.classList.contains('layout-mode')) return;
+
     const winW = window.innerWidth;
     const winH = window.innerHeight;
     const isPortrait = winH > winW;
@@ -273,17 +276,6 @@ function handleResize() {
         board.style.borderRadius = '0';
         board.style.border = 'none'; // Usuwamy ramkę, aby zyskać miejsce
 
-        // Skalowanie zawartości (bazowy obszar roboczy 1200x800)
-        // W trybie portretowym (mobilnym) zmniejszamy bazową szerokość, aby zwiększyć skalę
-        const baseW = isPortrait ? 480 : 1200;
-        const baseH = isPortrait ? 850 : 800;
-        // Obliczamy skalę tak, aby wszystko się zmieściło (contain)
-        let scale = Math.min(winW / baseW, winH / baseH);
-        // W trybie portretowym priorytet ma szerokość (pozwalamy na scrollowanie)
-        if (isPortrait) {
-            scale = winW / baseW;
-        }
-        board.style.setProperty('--board-scale', scale * 0.95); // 0.95 marginesu bezpieczeństwa
     } else {
         // Tryb okienkowy - proporcje ekranu
         const ratio = winW / winH;
@@ -292,19 +284,9 @@ function handleResize() {
         board.style.height = 'auto';
         board.style.margin = '20px auto';
         
-        // Przywracamy ramkę
-        board.style.border = '15px solid #25282c';
-        board.style.borderRadius = '20px';
-
-        // Skalowanie wewnątrz ramki (uwzględniamy padding 40px + border 15px = ~110px)
-        const rect = board.getBoundingClientRect();
-        const availableW = rect.width - 120;
-        const availableH = rect.height - 120;
-        
-        const baseW = isPortrait ? 480 : 1200;
-        const baseH = isPortrait ? 850 : 800;
-        const scale = Math.min(availableW / baseW, availableH / baseH);
-        board.style.setProperty('--board-scale', Math.max(0.4, scale));
+        // Przywracamy ramkę (czyścimy style inline, aby działał CSS)
+        board.style.border = '';
+        board.style.borderRadius = '';
     }
 }
 window.addEventListener('resize', handleResize);
@@ -322,7 +304,11 @@ function animatePileToPlayer(playerIdx, cardData) {
     flyingCard.className = `card ${cardData ? cardData.color : ''}`;
     
     if (cardData) {
-        flyingCard.innerHTML = `<div>${cardData.val}</div><div class="suit">${cardData.suit}</div>`;
+        flyingCard.innerHTML = `
+            <div class="card-corner top-left"><div>${cardData.val}</div><div>${cardData.suit}</div></div>
+            <div class="card-center-suit">${cardData.suit}</div>
+            <div class="card-corner bottom-right"><div>${cardData.val}</div><div>${cardData.suit}</div></div>
+        `;
     } else {
         flyingCard.style.background = '#fff';
     }
@@ -333,8 +319,8 @@ function animatePileToPlayer(playerIdx, cardData) {
     flyingCard.style.position = 'fixed';
     flyingCard.style.left = centerRect.left + 'px';
     flyingCard.style.top = centerRect.top + 'px';
-    flyingCard.style.width = '150px'; // Rozmiar zgodny z CSS .card
-    flyingCard.style.height = '210px';
+    flyingCard.style.width = centerRect.width + 'px'; // Dynamiczny rozmiar
+    flyingCard.style.height = centerRect.height + 'px';
     flyingCard.style.zIndex = '2000';
     flyingCard.style.transition = 'all 0.6s cubic-bezier(0.5, 0, 0, 1)';
     flyingCard.style.transformOrigin = 'center center';
@@ -378,3 +364,4 @@ window.showInfoModal = showInfoModal;
 window.animatePileToPlayer = animatePileToPlayer;
 window.changeTheme = changeTheme;
 window.playSound = playSound;
+window.handleResize = handleResize;
