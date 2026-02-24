@@ -223,10 +223,10 @@ function playCard(playerIdx, isRemote = false) {
 
     const slapAlert = document.getElementById('slap-alert');
     if (slap) {
-        playSound('slap'); // Dźwięk uderzenia/alarmu
         gameState.slapActive = true;
         // W trybie kompetetywnym nie pokazujemy wielkiego napisu ani menu wyboru przegranego
         if (gameState.mode !== 'competitive') {
+            playSound('slap'); // Dźwięk uderzenia/alarmu
             slapAlert.style.display = 'block';
             slapAlert.innerText = "RĘCE NA STOS!";
             showPenaltyControls();

@@ -295,11 +295,12 @@ function dragElement(elmnt) {
         pos4 = clientY;
         
         const parent = elmnt.offsetParent || document.body;
-        const newLeft = elmnt.offsetLeft + deltaX;
-        const newTop = elmnt.offsetTop + deltaY;
+        
+        const deltaXPerc = (deltaX / parent.offsetWidth) * 100;
+        const deltaYPerc = (deltaY / parent.offsetHeight) * 100;
 
-        elmnt.style.left = (newLeft / parent.offsetWidth * 100) + "%";
-        elmnt.style.top = (newTop / parent.offsetHeight * 100) + "%";
+        elmnt.style.left = ((parseFloat(elmnt.style.left) || 0) + deltaXPerc) + "%";
+        elmnt.style.top = ((parseFloat(elmnt.style.top) || 0) + deltaYPerc) + "%";
         
         constrainElement(elmnt);
     }
